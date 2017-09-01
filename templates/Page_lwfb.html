@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="/static/css/tabel.css" rel="stylesheet" type="text/css">
+
+    <script>
+        // function postunit() {
+        //     document.getElementById("units").submit()
+        // }
+        function postunit1() {
+            document.getElementById("units").submit()
+        }
+    </script>
+
+    
+</head>
+<body>
+    <h1>不同期刊论文分布</h1>
+    <h2 align="center">{{ unit }}  {{ esi }}</h2>
+    <h3 align="left">选择二级单位与ESI学科</h3>
+    <form id="units" action="#" method="post">
+    <div >
+        <select  name="selunit" onchange="postunit()" type="select" data-inline="true">
+            {% for u in units %}
+                <option value={{ u }}>{{ u }}</option>
+            {% endfor %}
+        </select>
+
+        <select  name="selesi" onchange="postunit1()" type="select" data-inline="true">
+            {% for u in esis %}
+                <option value={{ u }}>{{ u }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    </form>
+    <hr/>
+    <table class="GridBackColor">
+        <tbody>
+            <tr class="GridHeadBackColor">
+                <td>
+                    <a >来源出版物</a>
+                </td>
+                <td>
+                    <a>论文篇数(篇)</a>
+                </td>
+                <td>
+                    <a>被引频次(次)</a>
+                </td>
+                <td>
+                    <a>篇均被引(次/篇)</a>
+                </td>
+               
+            </tr>
+            {% for l,a,b,c,d in staffs %}
+            <tr onmouseover="javascript:this.bgColor='#C7F8AE';" onmouseout="javascript:this.bgColor='#ffffff';" bgcolor="#ffffff">
+                <td >
+                    {{ a }}
+                </td>
+                <td>
+                    {{ b }} 
+                </td>
+                <td>
+                    {{ c }}
+                </td>
+                <td>
+                    {{ d }}
+                </td>
+               
+            </tr>
+
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

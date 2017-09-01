@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link href="/static/css/PageFramestyle.css" rel="stylesheet" type="text/css">
+    <style>
+        .Wdate{
+            border:#999 1px solid;
+            height:20px;
+        }
+        .WdateFmtErr{
+            font-weight:bold;
+            color:red;
+        }
+        .startbtn{
+            left: 20%;
+            overflow: hidden;
+            position: relative;
+            display: block;
+            width: 60%;
+            min-height: 40px;
+            text-align: center;
+            font: 20px SimHei , sans-serif;
+            color: #fff;
+            background-color: #55a3e2;
+        }
+        .startbtn:hover{
+            color: silver;
+            text-decoration: none;
+        }
+        .startbtn span{
+            z-index: 20;
+            position: absolute;
+            transform: translate(-50%,40%);
+        }
+        .startbtn:after{
+            background: #fff;
+            content: "";
+            height: 120px;
+            left: -75px;
+            opacity: .1;
+            position: absolute;
+            top: -50px;
+            -webkit-transform: rotate(35deg);
+                 -ms-transform: rotate(35deg);
+                     transform: rotate(35deg);
+            -webkit-transition: all 550ms cubic-bezier(0.19, 1, 0.22, 1);
+                     transition: all 550ms cubic-bezier(0.19, 1, 0.22, 1);
+            width: 50px;
+            z-index: 10;
+        }
+        .startbtn:hover:after{
+            left: 120%;
+            -webkit-transition: all 550ms cubic-bezier(0.19, 1, 0.22, 1);
+                      transition: all 550ms cubic-bezier(0.19, 1, 0.22, 1);
+        }
+    </style>
+    <script type="text/javascript" src="/static/plugins/My97DatePicker/WdatePicker.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-3.2.1.min.js"></script>
+
+</head>
+<body>
+<div>
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody><tr>
+            <td style="vertical-align:top">
+                <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                    <tbody><tr>
+                        <td width="50%" style="padding-right: 5px; vertical-align: top">
+                            <!--通知公告 Begin-->
+                            <div class="maintitlebg">
+                                <span></span><div class="title1icon">
+                                </div>
+                                通知公告</div>
+                            <div class="titlebox">
+                                <ul>
+
+                                        <li><span>2017-03-07</span><a href="#">----------</a></li>
+
+                                        <li><span>2017-02-16</span><a href="#">----------</a></li>
+
+                                        <li><span>2016-09-28</span><a href="#">----------</a></li>
+
+                                        <li><span>2016-09-19</span><a href="#">----------</a></li>
+
+                                        <li><span>2016-09-08</span><a href="#">----------</a></li>
+
+                                        <li><span></span><a href="#"></a></li>
+
+                                </ul>
+                            </div>
+                            <!--通知公告 End-->
+                            <!--我的课程 Begin-->
+                            <div class="maintitlebg" style="margin-top: 18px;">
+                                <span></span><div class="title4icon">
+                                </div>
+                                ----</div>
+                            <div class="titlebox">
+                                <ul>
+                                        <li><span>―&gt;</span><a href="#">&nbsp;</a></li>
+
+                                        <li><span>―&gt;</span><a href="#">&nbsp;</a></li>
+
+                                        <li><span>―&gt;</span><a href="#">&nbsp;</a></li>
+
+                                        <li><span>―&gt;</span><a href="#">&nbsp;</a></li>
+
+                                        <li><span>―&gt;</span><a href="#">&nbsp;</a></li>
+
+                                        <li><span>―&gt;</span><a href="#">&nbsp;</a></li>
+
+
+                                </ul>
+                            </div>
+                            <!--我的课程 End-->
+                        </td>
+                        <td valign="top" style="padding-left: 5px;">
+                            <!--最近统计 Begin-->
+                            <div class="maintitlebg">
+                                <span></span><div class="title2icon">
+                                </div>
+                                最近统计</div>
+                            <div class="titlebox">
+                                <ul>
+
+                                        <li><span>2017-04-05</span><a href="#">查看上次统计结果</a></li>
+
+                                        <li><span></span><span>&nbsp;&nbsp;</span><a href=""></a></li>
+
+                                        <li><span></span><span>&nbsp;&nbsp;</span><a href=""></a></li>
+
+                                        <li><span></span><span>&nbsp;&nbsp;</span><a href=""></a></li>
+
+                                        <li><span></span><span>&nbsp;&nbsp;</span><a href=""></a></li>
+
+                                        <li><span></span><span>&nbsp;&nbsp;</span><a href=""></a></li>
+
+                                </ul>
+                            </div>
+                            <!--待办事宜 End-->
+                            <!--培养预警 Begin-->
+                            <div class="maintitlebg" style="margin-top: 18px;">
+                                <span></span><div class="title5icon">
+                                </div>
+                                ----</div>
+                            <div class="titlebox" style="height: 135px;">
+                                <ul>
+                                        <li><span>―&gt;</span><a href="#">&nbsp;</a></li>
+
+                                        <li><span>―&gt;</span><a href="#">&nbsp;</a></li>
+
+                                        <li><span>―&gt;</span><a href="#">&nbsp;</a></li>
+
+                                        <li><span>―&gt;</span><a href="#">&nbsp;</a></li>
+
+                                        <li><span>―&gt;</span><a href="#">&nbsp;</a></li>
+
+                                        <li><span>―&gt;</span><a href="#">&nbsp;</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody></table>
+                <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                    <tbody><tr>
+                        <td style="padding-right: 5px; vertical-align: top">
+                        </td>
+                        <td valign="top" style="padding-left: 5px;">
+                        </td>
+                    </tr>
+                </tbody></table>
+
+            </td>
+            <td width="280" style="padding-left: 10px; vertical-align: top">
+                <div class="rigbox" style="border-top: 1px solid #d5e4f0">
+                    <div class="maintitlebg" style="padding-left: 10px;">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                            <tbody><tr>
+                                    <td width="100%" style="font-size: 14px;">
+                                        上次统计情况
+                                    </td>
+                            </tr></tbody>
+                        </table>
+                    </div>
+                    <div class="cardbox" style="font-weight:bold;">
+                        <p>
+                            <span>
+                            日期：{{ time }}<br>
+                            统计篇幅：{{ saved }}<br>
+                            使用者：{{ user }}<br>
+                            </span>
+                        </p>
+                        <div class="clear">
+                        </div>
+                    </div>
+                    <form id="formid" action="../PageFrame/" method="post">
+                    <div class="maintitlebg" style="padding-left: 10px;">
+                            <p  width="60" style="font-size: 14px;">
+                                    选择日期
+                            </p>
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tbody>
+                                <tr>
+                                    <td width="120">
+                                        起始<input name="startdate" type="text" value="{{ startdata }}" id="startdate" class="datetxt" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'});$('#dateimg').focus();">
+                                    </td>
+                                    <td width="120">
+                                        结束<input name="enddate" type="text" value="{{ enddata }}" id="enddate" class="datetxt" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'});$('#dateimg').focus();">
+                                    </td>
+                                </tr>
+                            </tbody></table>
+                    </div>
+                    <div id="startarea" class="cardbox" style="margin-top: 70px">
+                        <span style="position: absolute;transform: translate(85px,-30px);"></span>
+                        <a id="start" href="#" class="startbtn" onclick="start()"><span>开始</span></a>
+                    </div>
+                    </form>
+                </div>
+
+            </td>
+        </tr>
+    </tbody></table>
+    </div>
+    <script language="JavaScript">
+        function start() {
+            var startdate = document.getElementById("startdate").value;
+            var enddate = document.getElementById("enddate").value;
+            var btn = document.getElementById("start").getElementsByTagName("span")[0]
+            var msg =  document.getElementById("startarea").getElementsByTagName("span")[0]
+
+            {# 判断类型开始、继续、暂停#}
+            if(btn.status==null||btn.status == 2){
+                btn.status = 1
+                if (startdate == ""){
+                alert("请输入起始日期");
+                return false;
+            }
+            if (startdate == ""){
+                alert("请输入结束日期");
+                return false;
+            }
+            if(btn.status==null)
+                alert("确认启动ESI论文爬虫吗？")
+            else
+                alert("确认继续？")
+            var postdate = {"startdate":startdate,"enddate":enddate}
+            $.ajax({
+                url: 'spiderSen',
+                type: 'POST',
+                data: postdate,
+                success: function (data) {
+                    data = JSON.parse(data);
+                    if (data["status"] == 1) {
+                        btn.innerText = data["btn"]
+                        msg.innerHTML = "正在收集……"
+                    } else {
+                        alert(data["result"]);
+                    }
+                }
+            })
+            }else if (btn.status == 1){
+                btn.innerText = "继续"
+                msg.innerHTML = "已经暂停……"
+                btn.status = 2
+            }
+
+        }
+    </script>
+</body>
+</html>

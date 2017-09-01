@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="/static/css/tabel.css" rel="stylesheet" type="text/css"> 
+    <script>
+        function postunit1() {
+            document.getElementById("units").submit()
+        }
+    </script>   
+</head>
+<body>
+    <h1>合作机构分析</h1>
+    <h2 align="center"> {{ type2 }}</h2>
+    <h3 align="left">选择排序方式</h3>
+    <form id="units" action="#" method="post">
+    <div >
+
+        <select  name="type2" onchange="postunit1()" type="select" data-inline="true">
+            {% for u in type1 %}
+                <option value={{ u }}>{{ u }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    </form>
+    <hr/>
+    <table class="GridBackColor">
+        <tbody>
+            <tr class="GridHeadBackColor">
+                <td>
+                    <a >合作单位</a>
+                </td>
+                <td>
+                    <a>论文篇数(篇)</a>
+                </td>
+                <td>
+                    <a>被引频次(次)</a>
+                </td>
+                <td>
+                    <a>篇均被引(次/篇)</a>
+                </td>
+
+               
+            </tr>
+            {% for a,b,c,d in lis %}
+            
+            <tr onmouseover="javascript:this.bgColor='#C7F8AE';" onmouseout="javascript:this.bgColor='#ffffff';" bgcolor="#ffffff">
+                <td >
+                    {{ a }}
+                </td>
+                <td>
+                    {{ b }} 
+                </td>
+                <td>
+                    {{ c }}
+                </td>
+                <td>
+                    {{ d }}
+                </td>
+
+               
+            </tr>
+            
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

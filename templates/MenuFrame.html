@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="/static/css/MenuFrame.css" type="text/css" rel="stylesheet">
+    <script type="text/javascript" src="/static/js/jquery-3.2.1.min.js"></script>
+    <style>
+        .tree dd .list li a em{width:22px;height:24px;background: url(/static/imgs/lefticon.gif) no-repeat 15px 8px;display:inline;float: left;margin-right:1px;}
+    </style>
+</head>
+<body>
+<form>
+<div class="leftTbg"></div>
+{#树形菜单开始#}
+<div class="tree">
+    <dl id="tree">
+        <dt class="close">
+            论文查询
+        </dt>
+        <dd style="display: none">
+            <ul class="list">
+                <li>
+                    <a href="../Page_lwzl" target="PageFrame">
+                        <em></em>总体情况
+                    </a>
+                </li>
+            </ul>
+        </dd>
+         <dt class="close">
+            年度论文引用关系
+        </dt>
+        <dd style="display: none">
+            <ul class="list">
+                <li>
+                    <a href="../Page_yygx" target="PageFrame">
+                        <em></em>总体情况
+                    </a>
+                </li>
+            </ul>
+        </dd>
+        <dt class="close">
+            年度发表论文分析
+        </dt>
+        <dd style="display: none">
+            <ul class="list">
+                <li>
+                    <a href="../Page_annualPublications" target="PageFrame">
+                        <em></em>总体情况
+                    </a>
+                </li>
+            </ul>
+        </dd>
+        <dt class="close">
+            论文被引频次分析
+        </dt>
+        <dd style="display: none">
+            <ul class="list">
+                <li>
+                    <a href="../Page_citationFrequency" target="PageFrame">
+                        <em></em>总体情况
+                    </a>
+                </li>
+            </ul>
+        </dd>
+        <dt class="close">
+            期刊论文分布分析
+        </dt>
+        <dd style="display: none">
+            <ul class="list">
+                <li>
+                    <a href="../Page_lwfb" target="PageFrame">
+                        <em></em>总体情况
+                    </a>
+                </li>
+            </ul>
+        </dd>
+
+        <dt class="close">
+            作者分析
+        </dt>
+        <dd style="display: none">
+            <ul class="list">
+                <li>
+                    <a href="../Page_lwtj" target="PageFrame">
+                        <em></em>总体情况
+                    </a>
+                </li>
+            </ul>
+        </dd>
+        <dt class="close">
+            合作类型分析
+        </dt>
+        <dd style="display: none">
+            <ul class="list">
+                <li>
+                    <a href="../Page_cooperationTypes" target="PageFrame">
+                        <em></em>总体情况
+                    </a>
+                </li>
+            </ul>
+        </dd>
+        <dt class="close">
+            合作机构分析
+        </dt>
+        <dd style="display: none">
+            <ul class="list">
+                <li>
+                    <a href="../Page_lwhz" target="PageFrame">
+                        <em></em>总体情况
+                    </a>
+                </li>
+            </ul>
+        </dd>
+        <dt class="close">
+            期刊影响因子分析
+        </dt>
+        <dd style="display: none">
+            <ul class="list">
+                <li>
+                    <a href="../Page_JournalImpactFactor" target="PageFrame">
+                        <em></em>总体情况
+                    </a>
+                </li>
+            </ul>
+        </dd>
+        <dt class="close">
+            数据导入
+        </dt>
+        <dd style="display: none">
+            <ul class="list">
+                <li>
+                    <a href="../Page_journalsImport.html" target="PageFrame">
+                        <em></em>期刊导入
+                    </a>
+                </li>
+                <li>
+                    <a href="../Page_staffsImport.html" target="PageFrame">
+                        <em></em>员工导入
+                    </a>
+                </li>
+            </ul>
+        </dd>
+        <dt class="close">
+            贡献度
+        </dt>
+        <dd style="display: none">
+            <ul class="list">
+                <li>
+                    <a href="../Page_journalsContribution.html" target="PageFrame">
+                        <em></em>二级单位贡献度
+                    </a>
+                </li>
+            </ul>
+        </dd>
+
+    </dl>
+</div>
+<script language="javascript">
+        (function () {
+            var tit = $("#tree>dt");
+            tit.each(function () {
+                var me = $(this);
+                var dd = me.next("dd");
+                if (dd.length < 1) {
+                    me.removeClass("close");
+                } else {
+                    me.addClass("close");
+                    me.bind("click", function () {
+                        var index = me.index();
+                        if (dd.is(":hidden")) {
+                            dd.slideDown(100).siblings("dd").slideUp(100);
+                            me.addClass("open").siblings("dt").removeClass("open");
+                        } else {
+                            dd.slideUp(100);
+                            me.removeClass("open");
+                        }
+                    })
+                }
+            })
+        })()
+</script>
+</form>
+
+</body>
+</html>

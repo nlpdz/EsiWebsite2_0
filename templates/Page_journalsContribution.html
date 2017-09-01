@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en"style="height: 100%">
+<head>
+    <meta charset="UTF-8">
+    <title>Contributions of Journals</title>
+    <script src="http://echarts.baidu.com/dist/echarts.common.min.js"></script>
+    <script src="../static/js/FileSaver.min.js"></script>
+</head>
+<body style="height: 100%;">
+    <div id="chart" style="left:10%; width: 80%; height:100%;"></div>
+    <script type="text/javascript">
+        var myChart = echarts.init(document.getElementById('chart'));
+
+        var instituteContributeDict = {{ instituteContributeDict | safe }};
+{#        var esiStatistics = {{ esiStatistics | safe }};#}
+
+        var insitArr = []
+        for(var key in instituteContributeDict) {
+            insitArr.push({value:instituteContributeDict[key], name:key})
+        }
+
+        window.onresize = myChart.resize;
+
+        option = {
+    title : {
+        top:20,
+        text: '武汉科技大学二级单位论文贡献度',
+        x:'center'
+    },
+    tooltip : {
+        trigger: 'item',
+        formatter: "{a} <br/>{b} : {c} ({d}%)"
+    },
+    legend: {
+        bottom:30,
+        left: 'right',
+        data: Object.keys(instituteContributeDict),
+    },
+    series : [
+        {
+            name: '二级单位',
+            type: 'pie',
+            radius : '50%',
+            center: ['50%', '45%'],
+            data: insitArr,
+{#            data:[#}
+{#                {value:335, name:'材料与冶金学院'},#}
+{#                {value:310, name:'理学院'},#}
+{#                {value:234, name:'化学工程与技术学院'},#}
+{#                {value:135, name:'医学院'},#}
+{#                {value:1548, name:'资源与环境工程学院'},#}
+{#                {value:310, name:'计算机科学与技术学院'},#}
+{#                {value:310, name:'信息科学与工程学院'},#}
+{#                {value:310, name:'机械自动化学院'},#}
+{#                {value:310, name:'附属天佑医院'},#}
+{#                {value:310, name:'国际钢铁研究院'},#}
+{#                {value:310, name:'管理学院'},#}
+{#                {value:310, name:'生物医学研究院'},#}
+{#                {value:310, name:'附属普仁医院'},#}
+{#                {value:310, name:'城市建设学院'},#}
+{#                {value:310, name:'武汉科技大学城市学院'},#}
+{#                {value:310, name:'文法与经济学院'},#}
+{#                {value:310, name:'汉阳医院'},#}
+{#                {value:310, name:'汽车与交通工程学院'},#}
+{#            ],#}
+{#            data:[insitArr = function (instituteContributeDict) {#}
+{#                var insitArr = []#}
+{#                for(var key in instituteContributeDict) {#}
+{#                    insitArr.push({value:instituteContributeDict[key], name:key})#}
+{#                }#}
+{#                return(insitArr)#}
+{#            }],#}
+{#            data: Object.values(instituteContributeDict),#}
+{#            data: function (instituteContributeDict) {#}
+{#                    for(var key in instituteContributeDict){#}
+{#                        console.log(key)#}
+{#                    }#}
+{#                return insitArr#}
+{#            },#}
+            itemStyle: {
+                emphasis: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            }
+        }
+    ]
+};
+        myChart.setOption(option);
+{#        myChart.on('click',function (params) {#}
+{#            if(isNaN(params.name))#}
+{#                return;#}
+{##}
+{#        }.bind(this));#}
+    </script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link type="text/css" href="/static/css/tabel.css" rel="stylesheet">
+    <script>
+        function postyear() {
+            document.getElementById("year").submit()
+        }
+    </script>
+</head>
+<body>
+    <h1 class="h1">引用关系</h1>
+
+    <form id="year" action="#" method="post">
+        <select name="selyear" onchange="postyear()" style="width: 75px">
+            {% for y in year %}
+                <option value={{ y }}>{{ y }}年</option>
+            {% endfor %}
+        </select>
+    </form>
+    <hr/>
+    <table class="GridBackColor">
+        <tbody>
+            <tr class="GridHeadBackColor">
+                <td>
+                    <a>标题</a>
+                </td>
+                <td>
+                    <a>被引标题</a>
+                </td>
+            </tr>
+
+            {% for paper in paper_pair %}
+                {% for line in paper %}
+                    <tr onmousemove="javascript:this.bgColor='#C7F8AE';" onmouseout="javascript:this.bgColor='#ffffff';" bgcolor="#ffffff">
+                        <td>
+                            {{ line.REFERENCE_TITLE }}
+                        </td>
+                        <td>
+                            {{ line.TITLE }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+
+        </tbody>
+    </table>
+</body>
+</html>

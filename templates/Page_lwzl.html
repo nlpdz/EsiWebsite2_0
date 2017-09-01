@@ -1,0 +1,305 @@
+<!DOCTYPE html >
+
+<html  lang="en" style="height: 100%">
+<head>
+    <title>论文查询</title>
+    <link href="/static/css/tabel.css" rel="stylesheet" type="text/css">
+
+    <!-- <script src="js/jquery-1.11.1.js"></script>
+    <script src="js/demo.js"></script> -->
+    <style type="text/css">
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        #title{
+            text-align: center;
+            color: black;
+        }
+        #kk{
+            text-align: center;
+            color: #2894FF;
+            font-size: 50px;
+        }
+        #dd{
+            color: black;
+            width: 80%;
+            margin: 25px 25px;
+
+        }
+        #dd .d8{
+            position: absolute;
+            left: 500px;
+            top: 15px;
+            color: white;
+
+        }
+        #dd .d1{
+            position: absolute;
+            left: 820px;
+            top: 60px;
+            color: black;
+        }
+        #dd .d2{
+            position: absolute;
+            left: 820px;
+            top: 80px;
+            color: black;
+        }
+        #dd .d7{
+            position: absolute;
+            left: 837px;
+            top: 100px;
+            color: black;
+        }
+        #dd .d3{
+            position: absolute;
+            left: 960px;
+            top: 60px;
+            color: black;
+        }
+        #dd .d4{
+            position: absolute;
+            left: 960px;
+            top: 80px;
+            color: black;
+        }
+        #dd .d6{
+            position: absolute;
+            left: 977px;
+            top: 100px;
+            color: black;
+        }
+        #dd .d5{
+            position: absolute;
+            left: 1100px;
+            top: 63px;
+            color: black;
+        }
+        #jj{
+            color: red;
+        }
+        #cc{
+            position: absolute;
+            left: 1100px;
+            top: 10px;
+        }
+    </style>
+</head>
+<body  >
+
+{#{% block page-content %}#}
+    <div id="title">
+        <h1>论文查询与导出</h1>
+    </div>
+    <form action = "Page_lwzl" method="get">
+
+    <div  id="dd">
+
+         <p class="d8"><input type="radio" checked="true" name="tf"  value="1" style="width:1px; height: 1px;"></p>
+
+        标题：<input type="text" name="title" value="" onclick="this.value = ''"/>
+
+        作者：<input type="text" name="author" value="" onclick="this.value = ''"/>
+
+        日期：<input type="text" name="date" value="" onclick="this.value = ''"/>
+
+
+        <p class="d1">高热点：<input type="radio" checked="true" name="hot"  value="1" ></p>
+        <p class="d2">低热点：<input type="radio" name="hot"  value="0" ></p>
+        <p class="d7">全部：<input type="radio"  name="hot"  value="" ></p>
+
+
+
+
+
+
+        <p class="d3">高被引：<input type="radio"  checked="true"  name="hightref" value="1" ></p>
+        <p class="d4">低被引：<input type="radio"  name="hightref" value="0" ></p>
+        <p class="d6">全部：<input type="radio" name="hightref" value="" ></p>
+        <p class="d5"><input type="submit" value="Search" class="search_button" style="width:50px; height: 40px;" /></p>
+
+
+
+    </div>
+    <span  id="cc" style="width:100px ">
+
+        <a href="./static/download/csvFile2.csv" target="_self">
+            <img src="static/imgs/save.png" width="20px" height="20px"  />
+        </a>
+    </span>
+
+
+    </form>
+    <div align=right id="jj">注意：默认输出所有高热点、高被引</div>
+
+
+    <hr/>
+
+    <table class="GridBackColor">
+        <tbody>
+            <tr class="GridHeadBackColor">
+                <td style="width:100px;">
+                    <a>序号</a>
+                </td>
+                <td>
+                    <a >题录</a>
+                </td>
+                <td style="width:100px;">
+                    <a>被引频次(次)</a>
+                </td>
+
+            </tr>
+            {% for line,i,auto,me,e in lis %}
+
+            <tr onmouseover="javascript:this.bgColor='#C7F8AE';" onmouseout="javascript:this.bgColor='#ffffff';" bgcolor="#ffffff">
+                <td >
+                    {{i}}
+                </td>
+                <td>
+                    <strong>题名：</strong> {{line.TITLE }} </br>
+                    <strong>作者：</strong> {{auto}} </br>
+                    <strong>期刊：</strong>《{{line.PUBLICATION}}》</br>
+                    <strong>合作机构：</strong> {{me}} </br>
+                    <strong>出版年：</strong> {{line.DATE}} </br>
+                    <strong>所属学科：</strong> {{e}} </br>
+                </td>
+                <td>
+                    {{line.TOTALREFCOUNT}}
+                </td>
+
+
+            </tr>
+
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            {% if lis %}
+
+            {% if contacts.has_previous %}
+                <li>
+                    <a href="?page={{ contacts.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+
+                </li>
+            {% endif %}
+
+
+             <tr>
+             {{contacts.number}}
+
+                /
+
+             {{contacts.paginator.num_pages}}</tr>
+
+
+            {% if contacts.has_next %}
+                <li>
+
+                    <a href="?page={{ contacts.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+
+            {% endif %}
+            {% endif %}
+        </ul>
+    </nav>
+
+</body>
+</html>
+
+
+
+
+{#    <table   width="1300px" border="1" cellpadding="0" cellspacing="0" style="table-layout: fixed;">#}
+{##}
+{##}
+{#    #}
+{##}
+{#        {% if  lis %}#}
+{#        <tr><th width="60"  >序号</th><th   width="1180px" >题录</th><th  width="60" >被引频次(次)</th></tr>#}
+{##}
+{#        {% endif %}#}
+{##}
+{##}
+{#        {% for line,i,auto,me,e in lis %}#}
+{##}
+{##}
+{#        <tr>#}
+{#            <td >{{i}}</td>#}
+{##}
+{##}
+{#            <td>#}
+{##}
+{#            <strong>题名：</strong>{{line.TITLE }}</br>#}
+{#            <strong>作者：</strong>{{auto}}</br>#}
+{#            <strong>期刊：</strong>《{{line.PUBLICATION}}》</br>#}
+{#            <strong>合作机构：</strong>{{me}}</br>#}
+{#            <strong>出版年：</strong>{{line.DATE}}</br>#}
+{#            <strong>所属学科：</strong>{{e}}</br>#}
+{##}
+{#            </td>#}
+{##}
+{##}
+{#            <td>{{line.TOTALREFCOUNT}}</td>#}
+{#        </tr>#}
+{##}
+{#        {% empty %}#}
+{##}
+{##}
+{#        {% endfor %}#}
+{#    </table>#}
+{##}
+{#    <nav aria-label="Page navigation">#}
+{#        <ul class="pagination">#}
+{#            {% if lis %}#}
+{##}
+{#            {% if contacts.has_previous %}#}
+{#                <li>#}
+{#                    <a href="?page={{ contacts.previous_page_number }}" aria-label="Previous">#}
+{#                        <span aria-hidden="true">&laquo;</span>#}
+{#                    </a>#}
+{##}
+{#                </li>#}
+{#            {% endif %}#}
+{##}
+{##}
+{#             <tr>#}
+{#             {{contacts.number}}#}
+{##}
+{#                /#}
+{##}
+{#             {{contacts.paginator.num_pages}}</tr>#}
+{#            <!-- {% for pg in contacts.paginator.page_range %}#}
+{##}
+{#                {% if contacts.number == pg %}#}
+{#                    <li class="active"><a href="?page={{pg}}">{{pg}}</a></li>#}
+{#                {% else %}#}
+{#                    <li><a href="?page={{pg}}">{{pg}}</a></li>#}
+{#                {% endif %}#}
+{#            {% endfor %} -->#}
+{##}
+{#            {% if contacts.has_next %}#}
+{#                <li>#}
+{##}
+{#                    <a href="?page={{ contacts.next_page_number }}" aria-label="Next">#}
+{#                        <span aria-hidden="true">&raquo;</span>#}
+{#                    </a>#}
+{#                </li>#}
+{##}
+{#            {% endif %}#}
+{#            {% endif %}#}
+{#        </ul>#}
+{#    </nav>#}
+{##}
+{#    {% endblock %}#}
+{##}
+{##}
+{##}
+{#</body>#}
+{#</html>#}

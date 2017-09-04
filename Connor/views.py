@@ -15,8 +15,6 @@ import os
 import xlrd
 import sqlite3
 
-
-
 # Create your views here.
 
 # 登陆界面控制器
@@ -117,7 +115,7 @@ def PageFrame(request):
     else:
         return render(request, "login.html", {"message": "走正门"})
 
-#以下四个为外部函数
+#以下四个为外部函数，接受args ,过滤后返回文章列表或者字典
 def qwer(*args):
     data = models.Dissertation.objects.filter(*args)
     return data
@@ -130,6 +128,7 @@ def mespaper_data2(*args):
     return paper_data
 
 def mesname(names, refclist, *args):
+    # 对空字典先做有序处理，这样在输出字典的时候也会有序输出
     dic = collections.OrderedDict()
     for refc in refclist:
         if '~' in refc:
@@ -144,11 +143,11 @@ def mesname(names, refclist, *args):
         dic.setdefault('%s' % refc, names['rec%s' % refc])
         # dic['%s' % refc] = names['rec%s' % refc]
     return dic
-
+# 作者分析，包括排名，论文篇数，被引频次，国际合作论文
 def Page_lwtj(request):
     if request.session.get('username', None):
 
-        ESI22 = ['None','ALL', 'COMPUTER SCIENCE', 'ENGINEERING', 'MATERIALS SCIENCES', 'BIOLOGY & BIOCHEMISTRY',
+        ESI22 = ['None', 'ALL', 'COMPUTER SCIENCE', 'ENGINEERING', 'MATERIALS SCIENCES', 'BIOLOGY & BIOCHEMISTRY',
                  'ENVIRONMENT & ECOLOGY', 'MICROBIOLOGY', 'MOLECULAR BIOLOGY & GENETICS',
                  'SOCIAL SCIENCES',
                  'ECONOMICS & BUSINESS', 'CHENISTRY', 'GEOSCIENCES', 'MATHEMATICS', 'PHYSICS',
@@ -170,21 +169,17 @@ def Page_lwtj(request):
                  '武汉科技大学城市学院': 'City Coll', '文法与经济学院': 'Res Ctr SME', '汉阳医院': 'Hanyang Hosp',
                  '汽车与交通工程学院': 'Sch Automobile & Traff Engn'}
         if request.method == "POST":
-            searchUnit11 = request.POST.get('selunit', None)
-            searchUnit11 = searchUnit11.encode('utf-8')
-            searchEsi11 = request.POST.get('selesi', None)
+            searchUnit = request.POST.get('selunit', None)
+            searchUnit = searchUnit.encode('utf-8')    # 必须把传过来的中文encode('utf-8')才能使用
+            searchEsi = request.POST.get('selesi', None)
         else:
-            searchUnit11 = '理学院'
-            searchEsi11 = 'ALL'
-
-        searchEsi = searchEsi11
-        searchUnit = searchUnit11
-
+            searchUnit = '理学院'
+            searchEsi = 'ALL'
 
         for i in units:
             if i != searchUnit:
                 continue
-            newunits = units[i].split('|')
+            newunits = units[i].split('|')    # 把units切分，便于做解析
 
             if len(newunits) == 3:
                 args = (Q(MECHANISM__icontains=newunits[0]) | Q(MECHANISM__icontains=newunits[1]) | Q(
@@ -194,25 +189,25 @@ def Page_lwtj(request):
             else:
                 args = (Q(MECHANISM__icontains=newunits[0]))
 
-            data = models.Dissertation.objects.filter(args)
+            data = models.Dissertation.objects.filter(args)  # 先过滤出所需的文章对象，便于后面处理，同时也能加快运行速度
 
-        data88 = models.Journals.objects.filter()
+        data88 = models.Journals.objects.filter()   # 过滤出期刊对象
         title88 = []
         if searchEsi != "ALL":
             for i in data88:
                 if searchEsi in i.CATE:
-                    v = [i.TITLE, i.TITLE29, i.TITLE20]
+                    v = [i.TITLE, i.TITLE29, i.TITLE20]   #将期刊的三种简写以列表的形式追加到title88
                     title88.append(v)
 
             for i in range(len(title88)):
-                title88[i][0] = str(title88[i][0]).upper()
+                title88[i][0] = str(title88[i][0]).upper()   # 将title88中的 unicode 编码转化成大写字符串格式
                 title88[i][1] = str(title88[i][1]).upper()
                 title88[i][2] = str(title88[i][2]).upper()
             for j in data:
                 j.PUBLICATION = str(j.PUBLICATION).upper()
 
             data99 = []
-            for i in range(len(title88)):
+            for i in range(len(title88)):                     #将title88中的 期刊与 data中的publication比较，然后过滤到data99
                 for j in data:
                     if title88[i][0] in j.PUBLICATION or title88[i][1] in j.PUBLICATION or title88[i][2] in j.PUBLICATION or j.PUBLICATION in title88[i][0] or j.PUBLICATION in title88[i][1] or j.PUBLICATION in title88[i][2]:
                         data99.append(j)
@@ -236,21 +231,20 @@ def Page_lwtj(request):
                 author1.append(au.AULIST[i + 1:j])
             aulist.append(author1)
 
-        b=[]
+        b = []
         for i in aulist:
             a = []
             for j in i:
-                j=str(j)
-                j=j.replace(',','')
-                j = j.replace('-', '')
-                j=j.lower()
+                j = str(j)
+                j = j.replace(',', '')
+                j = j.replace('-', '')    # 去掉作者写法中的 ',' 和 '-' ,然后全部转化成小写
+                j = j.lower()
                 a.append(j)
             b.append(a)
 
         aulist=b
 
-        #‘排名’和名称
-
+        # 将Staffs表中的三个字段分别存进三个列表
         unit1 = []
         cn = []
         en = []
@@ -264,14 +258,14 @@ def Page_lwtj(request):
         for k in staffs_en:
             en.append(k['STAFFNAME_EN'])
 
-        a=[]
+        a = []
         for i in en:
             # i=str(i)
-            i=i.lower()
+            i = i.lower()
             a.append(i)
-        en=a
+        en = a
 
-        #篇数
+        #统计篇数
         paper_num = []
         for i in en:
             c = 0
@@ -282,7 +276,7 @@ def Page_lwtj(request):
                         break
             paper_num.append(c)
 
-        #被引频次
+        #统计 被引频次
         z = zip(data, aulist)
 
         paper_cited = []
@@ -296,7 +290,7 @@ def Page_lwtj(request):
                         break
             paper_cited.append(c)
 
-        #国际合作单位
+        #统计国际合作单位
         internation = []
         for n in en:
             coo_num = 0
@@ -314,7 +308,7 @@ def Page_lwtj(request):
         d = zip(paper_num, cn, unit1, paper_cited, internation)
         for i in range(len(paper_num)):
             lis1.append(d[i])
-        lis1 = sorted(lis1, reverse=True)
+        lis1 = sorted(lis1, reverse=True)    #将压缩的d一个一个对象存入lis1 然后对lis1排序,默认按照第一个paper_num排序
         lis2 = []
         for i in lis1:
             if i[0] != 0:
@@ -333,11 +327,11 @@ def Page_lwtj(request):
             unit2.append(i[2])
             paper_cited2.append(i[3])
             internation2.append(i[4])
-        lis = list(range(len(lis2)))
+        lis = list(range(1, len(lis2)))    #排名
         staffs = zip(lis, unit2, cn2, en, paper_num2, paper_cited2, internation2)
 
         return render(request, "Page_lwtj.html", {'staffs': staffs, 'units': units.keys(),
-                                                  'unit': searchUnit,'esis': ESI22, 'esi': searchEsi})
+                                                  'unit': searchUnit, 'esis': ESI22, 'esi': searchEsi})
     else:
         return render(request, "login.html", {"message": "走正门"})
 
@@ -360,8 +354,7 @@ hightref122 = []
 publication122 = []
 totalcount122 = []
 esi22 = []
-
-
+# 论文查询
 def Page_lwzl(request):
     if request.method == "GET":
 
@@ -492,13 +485,11 @@ def Page_lwzl(request):
             paginator3 = Paginator(List22, 10)
             paginator4 = Paginator(esi22, 10)
             try:
-
                 aulist66 = paginator1.page(page)
                 mechanism66 = paginator2.page(page)
                 List66 = paginator3.page(page)
                 esi66 = paginator4.page(page)
                 contacts = paginator.page(page)
-
             except PageNotAnInteger:
                 aulist66 = paginator1.page(1)
                 mechanism66 = paginator2.page(1)
@@ -568,6 +559,7 @@ def Page_lwzl(request):
 
     return render(request, "login.html", {"message": "走正门"})
 
+# 近十年论文被引关系
 def Page_yygx(request):
     import time
     thisyear = int(time.strftime('%Y', time.localtime(time.time())))
@@ -619,8 +611,6 @@ def Page_citationFrequency(request):
         else:
             args = (Q(MECHANISM__icontains=newunits[0]))
             dic = mesname(names, refclist, args)
-
-
     esi_category = {'Computer Science': 0, 'Engineering': 0, 'Materials Sciences': 0, 'Biology & Biochemistry': 0,
                     'Environment & Ecology': 0, 'Microbiology': 0, 'Molecular Biology & Genetics': 0,
                     'Social Sciences': 0,
@@ -641,7 +631,7 @@ def Page_citationFrequency(request):
         esi_statistics[i] = esi_category.copy()
         args1 = args1 & lis[j]
         args1 = (args1)
-        #过滤得到二级单位，及对应的被引频次区间的所有 对象，存入paper_data
+        #过滤得到二级单位，及对应的被引频次区间的所有对象，存入paper_data
         paper_data = mespaper_data2(args1)
 
         paper_publication = []
@@ -819,7 +809,7 @@ def Page_annualPublications(request):
             paper_publication.append(paper.PUBLICATION)
             year_ref_count += paper.REFERCOUNT
             year_total_count += 1
-        # 遍历paper_publiction ,将Journals表中的 该期刊对象存入  title_data
+        # 遍历paper_publiction ,将Journals表中的该期刊对象存入  title_data
         for publication in paper_publication:
             title_data.append(models.Journals.objects.filter(Q(TITLE__icontains=publication) | Q(TITLE29__icontains=publication) | Q(TITLE20__icontains=publication)))
         # 遍历title_data ,判断属于哪个ESI学科，并存入对应的esi_statistics 列表。
@@ -919,7 +909,6 @@ def Page_cooperationTypes(request):
         if i != searchUnit:
             continue
         newunits = units[i].split('|')
-
         if len(newunits) == 3:
             args = (Q(MECHANISM__icontains=newunits[0]) | Q(MECHANISM__icontains=newunits[1]) | Q(
                 RESEARCHDIR__icontains=newunits[2]))
@@ -952,7 +941,6 @@ def Page_cooperationTypes(request):
                     data99.append(j)
                     break
         data = data99
-
 
     #统计篇数
     independence_coo = 0    #独立发表
@@ -1007,7 +995,6 @@ def Page_cooperationTypes(request):
     domestic_coo = domestic_coo - HongKong_coo - Taiwan_coo - Macao_coo
     domestic_cit = domestic_cit - HongKong_cit - Taiwan_cit - Macao_cit
 
-
     coo_type = ['独立发表', '国内合作(不包含港澳台)', '国际合作', '香港合作', '台湾合作', '澳门合作']
     coo_num = [independence_coo, domestic_coo, internation_coo, HongKong_coo, Taiwan_coo, Macao_coo]
     cit_num = [independence_cit, domestic_cit, internation_cit, HongKong_cit, Taiwan_cit, Macao_cit]
@@ -1022,8 +1009,7 @@ def Page_cooperationTypes(request):
 
     return render(request, "Page_cooperationTypes.html", {"coo": coo, 'units': units.keys(),
                                                   'unit': searchUnit, 'esis': ESI22, 'esi': searchEsi})
-
-
+# 不同期刊论文分布
 def Page_lwfb(request):
     ESI22 = ['None', 'ALL', 'COMPUTER SCIENCE', 'ENGINEERING', 'MATERIALS SCIENCES', 'BIOLOGY & BIOCHEMISTRY',
              'ENVIRONMENT & ECOLOGY', 'MICROBIOLOGY', 'MOLECULAR BIOLOGY & GENETICS',
@@ -1122,6 +1108,7 @@ def Page_lwfb(request):
     staffs.sort(key=lambda x: x[4], reverse=True)
     return render(request, "Page_lwfb.html", {'staffs': staffs, 'units': units.keys(),
                                               'unit': searchUnit, 'esis': ESI22, 'esi': searchEsi})
+# 合作机构分析
 def Page_lwhz(request):
     type1 = ["AVERAGE", "NUMBER", "FREQUENCY"]
 
@@ -1261,7 +1248,6 @@ def Page_journalsContribution(request):
                 esi_statistics[key] += paper_data
 
             institutionJournalDict[key] = len(esi_statistics[key])
-        print(esi_statistics)
 
         return render(request, "Page_journalsContribution.html", {
             'instituteContributeDict':json.dumps(institutionJournalDict),
@@ -1270,7 +1256,6 @@ def Page_journalsContribution(request):
 
     else:
         return render(request, "login.html", {"message": "走正门"})
-
 
 #上传期刊Excel文件并保存至static/journalsExcelFolder
 def Page_journalsImport(request):

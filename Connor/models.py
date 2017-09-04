@@ -57,6 +57,6 @@ class Journals(models.Model):
     CATE = models.CharField(max_length=500, null=True)  # ESI学科
 
 class Staffs(models.Model):
-    INSTITUTION = models.CharField(max_length=300, null=True)
-    STAFFNAME_CN = models.CharField(max_length=100, null=True)
-    STAFFNAME_EN = models.CharField(max_length=300, null=True)
+    INSTITUTION = models.CharField(max_length=300, null=True)   # 所属二级单位
+    STAFFNAME_CN = models.CharField(max_length=100, null=True)  # 员工中文名
+    STAFFNAME_EN = models.CharField(max_length=300, null=True)  # 员工英文名

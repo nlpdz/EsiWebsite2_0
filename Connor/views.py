@@ -115,7 +115,7 @@ def PageFrame(request):
     else:
         return render(request, "login.html", {"message": "走正门"})
 
-#以下四个为外部函数，接受args ,过滤后返回文章列表或者字典
+# 以下四个为外部函数，接受args ,过滤后返回文章列表或者字典
 def qwer(*args):
     data = models.Dissertation.objects.filter(*args)
     return data
@@ -313,8 +313,6 @@ def Page_lwtj(request):
         for i in lis1:
             if i[0] != 0:
                 lis2.append(i)
-
-
         paper_num2 = []
         cn2 = []
         unit2 = []
@@ -329,20 +327,35 @@ def Page_lwtj(request):
             internation2.append(i[4])
         lis = list(range(1, len(lis2)))    #排名
         staffs = zip(lis, unit2, cn2, en, paper_num2, paper_cited2, internation2)
+        cn3 = []
+        for i in cn2:
+            j = i.encode('GB18030')   # 神奇的 GB18030 ,其他的都不行！
+            cn3.append(j)
+        staffs11 = zip(lis, cn3, paper_num2, paper_cited2, internation2)
+        # 将查询结果转化为csv文件形式，方便下载保存
+        csvFile2 = open('./static/download/csvFile2.csv', 'wb')  # 设置wb，否则两行之间会空一行
+        writer = csv.writer(csvFile2)
+        m = len(staffs11)
+        writer.writerow(["排名".decode('utf-8').encode('GB18030'), "作者".decode('utf-8').encode('GB18030'),
+                         "论文篇数".decode('utf-8').encode('GB18030'), "被引频次".decode('utf-8').encode('GB18030'),
+                         "国际合作论文篇数".decode('utf-8').encode('GB18030')])
 
+        for i in range(m):
+            writer.writerow(staffs11[i])
+        csvFile2.close()
         return render(request, "Page_lwtj.html", {'staffs': staffs, 'units': units.keys(),
                                                   'unit': searchUnit, 'esis': ESI22, 'esi': searchEsi})
     else:
         return render(request, "login.html", {"message": "走正门"})
 
-#论文统计控制器
+# 论文统计控制器
 def spiderSen(request):
     if request.session.get('username', None):
         return render(request, "spider.html")
     else:
         return render(request, "login.html", {"message": "走正门"})
 
-#Page_lwzl中的全局变量
+# Page_lwzl中的全局变量
 data22 = []
 List22 = []
 aulist22 = []
@@ -354,7 +367,8 @@ hightref122 = []
 publication122 = []
 totalcount122 = []
 esi22 = []
-# 论文查询
+
+#论文查询
 def Page_lwzl(request):
     if request.method == "GET":
 
@@ -381,11 +395,12 @@ def Page_lwzl(request):
 
             args = (Q())
 
+            #将前端传来查询变量放入字典
             dic = {"TITLE__contains": title, "AULIST__contains": author, "DATE__contains": date,
                    "HIGHTREF__contains": hightref, "HOT__contains": hot}
             dic1 = {}
             lis = []
-
+            #将字典dic中value不为空的放入dic1
             for k, v in dic.items():
                 if v:
                     dic1[k] = v
@@ -393,6 +408,8 @@ def Page_lwzl(request):
                    Q(HIGHTREF__contains=hightref), Q(HOT__contains=hot)]
             lissearch = []
             dicarg = [title, author, date, hightref, hot]
+
+            #找出不为空的传值
             for i in xrange(len(dicarg)):
                 if dicarg[i] != '':
                     lissearch.append(lis[i])
@@ -404,7 +421,7 @@ def Page_lwzl(request):
                     args = args & lissearch[i]
             args = (args)
 
-            page = request.GET.get('page')
+            page = request.GET.get('page') #得到网页页码
             data22 = qwer(args)
 
             for i in data22:
@@ -424,15 +441,14 @@ def Page_lwzl(request):
                     Q(TITLE__icontains=publication) | Q(TITLE29__icontains=publication) | Q(
                         TITLE20__icontains=publication)))
 
-            # 遍历title_data ,判断属于哪个ESI学科，并存入对应的esi_statistics 列表。
-
+            # 遍历title_data ,判断属于哪个ESI学科，并存入对应的esi22列表。
             for title in title_data:
 
                 if title:
                     esi22.append(title[0].CATE)
                 else:
                     esi22.append("no")
-
+            #遍历作者，挑选出需要的()内的内容
             aulist22 = []
             for au in data22:
                 a = []
@@ -450,6 +466,7 @@ def Page_lwzl(request):
 
                 aulist22.append(author122)
 
+            #遍历合作机构，挑选出需要的内容
             mechanism22 = []
             for au in data22:
                 a = []
@@ -479,17 +496,20 @@ def Page_lwzl(request):
 
             contact_list = data22.all()
 
+            #分页代码
             paginator = Paginator(contact_list, 10)
             paginator1 = Paginator(aulist22, 10)
             paginator2 = Paginator(mechanism22, 10)
             paginator3 = Paginator(List22, 10)
             paginator4 = Paginator(esi22, 10)
             try:
+
                 aulist66 = paginator1.page(page)
                 mechanism66 = paginator2.page(page)
                 List66 = paginator3.page(page)
                 esi66 = paginator4.page(page)
                 contacts = paginator.page(page)
+
             except PageNotAnInteger:
                 aulist66 = paginator1.page(1)
                 mechanism66 = paginator2.page(1)
@@ -507,10 +527,15 @@ def Page_lwzl(request):
             listall = zip(List22, title122, aulist22, publication122, mechanism22, date122, esi22, totalcount122,
                           hot122, hightref122)
 
-            csvFile2 = open('./static/download/csvFile2.csv', 'wb')  # 设置newline，否则两行之间会空一行
+            #将查询结果转化为csv文件形式，方便下载吧保存
+            csvFile2 = open('./static/download/csvFile2.csv', 'wb')  # 设置wb，否则两行之间会空一行
             writer = csv.writer(csvFile2)
             m = len(listall)
-            writer.writerow(["序号", "标题", "作者", "期刊", "合作机构", "出版年", "所属学科", "被引频次", "高低热点", "高低被引"])
+            writer.writerow(["序号".decode('utf-8').encode('GB18030'), "标题".decode('utf-8').encode('GB18030'),
+                             "作者".decode('utf-8').encode('GB18030'), "期刊".decode('utf-8').encode('GB18030'),
+                             "合作机构".decode('utf-8').encode('GB18030'), "出版年".decode('utf-8').encode('GB18030'),
+                             "所属学科".decode('utf-8').encode('GB18030'), "被引频次".decode('utf-8').encode('GB18030'),
+                             "高低热点".decode('utf-8').encode('GB18030'), "高低被引".decode('utf-8').encode('GB18030')])
 
             for i in range(m):
                 writer.writerow(listall[i])
@@ -524,6 +549,7 @@ def Page_lwzl(request):
             page = request.GET.get('page')
             contact_list = data22.all()
 
+            #分页代码
             paginator = Paginator(contact_list, 10)  #
             paginator1 = Paginator(aulist22, 10)
             paginator2 = Paginator(mechanism22, 10)
@@ -575,7 +601,7 @@ def Page_yygx(request):
         paper_pair.append(refer)
     return render(request, "Page_yygx.html", {"year": year, "paper_pair": paper_pair})
 
-#被引频次分布
+# 被引频次分布
 def Page_citationFrequency(request):
     dic = {}
     units = {'总体情况': ' ', '材料与冶金学院': 'Coll Mat & Met|Sch Met & Mat', '理学院': 'Coll Sci',
@@ -640,58 +666,60 @@ def Page_citationFrequency(request):
         for paper in paper_data:
             paper_publication.append(paper.PUBLICATION)
 
-        #遍历paper_publiction ,将Journals表中的 该期刊对象存入  title_data
+        data88 = models.Journals.objects.filter()
         for publication in paper_publication:
-            title_data.append(models.Journals.objects.filter(Q(TITLE__icontains=publication) | Q(TITLE29__icontains=publication) | Q(TITLE20__icontains=publication)))
+            for k in data88:
+                if publication in k.TITLE or publication in k.TITLE20 or publication in k.TITLE29 or k.TITLE in publication or k.TITLE20 in publication or k.TITLE29 in publication:
+                    title_data.append(k)
+                    break
+            #title_data.append(models.Journals.objects.filter(Q(TITLE__icontains=publication) | Q(TITLE29__icontains=publication) | Q(TITLE20__icontains=publication)))
 
         # 遍历title_data ,判断属于哪个ESI学科，并存入对应的esi_statistics 列表。
-        for title in title_data:
-
-            for ti in title:
-                if 'AGRICULTURAL SCIENCES' == ti.CATE:
-                    esi_statistics[i]['Agricultural Sciences'] += 1
-                elif 'BIOLOGY & BIOCHEMISTRY' == ti.CATE:
-                    esi_statistics[i]['Biology & Biochemistry'] += 1
-                elif 'CHEMISTRY' == ti.CATE:
-                    esi_statistics[i]['Chemistry'] += 1
-                elif 'CLINICAL MEDICINE' == ti.CATE:
-                    esi_statistics[i]['Clinical Medicine'] += 1
-                elif 'COMPUTER SCIENCE' == ti.CATE:
-                    esi_statistics[i]['Computer Science'] += 1
-                elif 'ECONOMICS & BUSINESS' == ti.CATE:
-                    esi_statistics[i]['Economics & Business'] += 1
-                elif 'ENGINEERING' == ti.CATE:
-                    esi_statistics[i]['Engineering'] += 1
-                elif 'ENVIRONMENT/ECOLOGY' == ti.CATE:
-                    esi_statistics[i]['Environment & Ecology'] += 1
-                elif 'GEOSCIENCES' == ti.CATE:
-                    esi_statistics[i]['Geosciences'] += 1
-                elif 'IMMUNOLOGY' == ti.CATE:
-                    esi_statistics[i]['Immunology'] += 1
-                elif 'MATERIALS SCIENCE' == ti.CATE:
-                    esi_statistics[i]['Materials Sciences'] += 1
-                elif 'MATHEMATICS' == ti.CATE:
-                    esi_statistics[i]['Mathematics'] += 1
-                elif 'MICROBIOLOGY' == ti.CATE:
-                    esi_statistics[i]['Microbiology'] += 1
-                elif 'MOLECULAR BIOLOGY & GENETICS' == ti.CATE:
-                    esi_statistics[i]['Molecular Biology & Genetics'] += 1
-                elif 'Multidisciplinary' == ti.CATE:
-                    esi_statistics[i]['Multidisciplinary'] += 1
-                elif 'NEUROSCIENCE & BEHAVIOR' == ti.CATE:
-                    esi_statistics[i]['Neuroscience & Behavior'] += 1
-                elif 'PHARMACOLOGY & TOXICOLOGY' == ti.CATE:
-                    esi_statistics[i]['Pharmacology & Toxicology'] += 1
-                elif 'PHYSICS' == ti.CATE:
-                    esi_statistics[i]['Physics'] += 1
-                elif 'PLANT & ANIMAL SCIENCE' == ti.CATE:
-                    esi_statistics[i]['Plant & Animal Science'] += 1
-                elif 'PSYCHIATRY/PSYCHOLOGY' == ti.CATE:
-                    esi_statistics[i]['Psychology & Psychiatry'] += 1
-                elif 'SOCIAL SCIENCES, GENERAL' == ti.CATE:
-                    esi_statistics[i]['Social Sciences'] += 1
-                else:
-                    esi_statistics[i]['Space Science'] += 1
+        for ti in title_data:
+            if 'AGRICULTURAL SCIENCES' == ti.CATE:
+                esi_statistics[i]['Agricultural Sciences'] += 1
+            elif 'BIOLOGY & BIOCHEMISTRY' == ti.CATE:
+                esi_statistics[i]['Biology & Biochemistry'] += 1
+            elif 'CHEMISTRY' == ti.CATE:
+                esi_statistics[i]['Chemistry'] += 1
+            elif 'CLINICAL MEDICINE' == ti.CATE:
+                esi_statistics[i]['Clinical Medicine'] += 1
+            elif 'COMPUTER SCIENCE' == ti.CATE:
+                esi_statistics[i]['Computer Science'] += 1
+            elif 'ECONOMICS & BUSINESS' == ti.CATE:
+                esi_statistics[i]['Economics & Business'] += 1
+            elif 'ENGINEERING' == ti.CATE:
+                esi_statistics[i]['Engineering'] += 1
+            elif 'ENVIRONMENT/ECOLOGY' == ti.CATE:
+                esi_statistics[i]['Environment & Ecology'] += 1
+            elif 'GEOSCIENCES' == ti.CATE:
+                esi_statistics[i]['Geosciences'] += 1
+            elif 'IMMUNOLOGY' == ti.CATE:
+                esi_statistics[i]['Immunology'] += 1
+            elif 'MATERIALS SCIENCE' == ti.CATE:
+                esi_statistics[i]['Materials Sciences'] += 1
+            elif 'MATHEMATICS' == ti.CATE:
+                esi_statistics[i]['Mathematics'] += 1
+            elif 'MICROBIOLOGY' == ti.CATE:
+                esi_statistics[i]['Microbiology'] += 1
+            elif 'MOLECULAR BIOLOGY & GENETICS' == ti.CATE:
+                esi_statistics[i]['Molecular Biology & Genetics'] += 1
+            elif 'Multidisciplinary' == ti.CATE:
+                esi_statistics[i]['Multidisciplinary'] += 1
+            elif 'NEUROSCIENCE & BEHAVIOR' == ti.CATE:
+                esi_statistics[i]['Neuroscience & Behavior'] += 1
+            elif 'PHARMACOLOGY & TOXICOLOGY' == ti.CATE:
+                esi_statistics[i]['Pharmacology & Toxicology'] += 1
+            elif 'PHYSICS' == ti.CATE:
+                esi_statistics[i]['Physics'] += 1
+            elif 'PLANT & ANIMAL SCIENCE' == ti.CATE:
+                esi_statistics[i]['Plant & Animal Science'] += 1
+            elif 'PSYCHIATRY/PSYCHOLOGY' == ti.CATE:
+                esi_statistics[i]['Psychology & Psychiatry'] += 1
+            elif 'SOCIAL SCIENCES, GENERAL' == ti.CATE:
+                esi_statistics[i]['Social Sciences'] += 1
+            else:
+                esi_statistics[i]['Space Science'] += 1
 
     return render(request, "Page_citationFrequency.html", {
         'refcount': {},
@@ -702,7 +730,7 @@ def Page_citationFrequency(request):
         'unit': searchUnit,
     })
 
-#期刊影响因子分布
+# 期刊影响因子分布
 def Page_JournalImpactFactor(request):
     dic = {}
     from django.db.models import Q
@@ -750,7 +778,7 @@ def Page_JournalImpactFactor(request):
         'unit': searchUnit,
     })
 
-#年度论文及被引频次分布
+# 年度论文及被引频次分布
 def Page_annualPublications(request):
     dic = {}
     units = {'总体情况': ' ', '材料与冶金学院': 'Coll Mat & Met|Sch Met & Mat', '理学院': 'Coll Sci',
@@ -810,55 +838,61 @@ def Page_annualPublications(request):
             year_ref_count += paper.REFERCOUNT
             year_total_count += 1
         # 遍历paper_publiction ,将Journals表中的该期刊对象存入  title_data
+
+        data88 = models.Journals.objects.filter()
         for publication in paper_publication:
-            title_data.append(models.Journals.objects.filter(Q(TITLE__icontains=publication) | Q(TITLE29__icontains=publication) | Q(TITLE20__icontains=publication)))
+            for k in data88:
+                if publication in k.TITLE or publication in k.TITLE20 or publication in k.TITLE29 or k.TITLE in publication or k.TITLE20 in publication or k.TITLE29 in publication:
+                    title_data.append(k)
+                    break
+            #title_data.append(models.Journals.objects.filter(Q(TITLE__icontains=publication) | Q(TITLE29__icontains=publication) | Q(TITLE20__icontains=publication)))
         # 遍历title_data ,判断属于哪个ESI学科，并存入对应的esi_statistics 列表。
-        for title in title_data:
-            for ti in title:
-                if 'AGRICULTURAL SCIENCES' == ti.CATE:
-                    esi_statistics[year]['Agricultural Sciences'] += 1
-                elif 'BIOLOGY & BIOCHEMISTRY' == ti.CATE:
-                    esi_statistics[year]['Biology & Biochemistry'] += 1
-                elif 'CHEMISTRY' == ti.CATE:
-                    esi_statistics[year]['Chemistry'] += 1
-                elif 'CLINICAL MEDICINE' == ti.CATE:
-                    esi_statistics[year]['Clinical Medicine'] += 1
-                elif 'COMPUTER SCIENCE' == ti.CATE:
-                    esi_statistics[year]['Computer Science'] += 1
-                elif 'ECONOMICS & BUSINESS' == ti.CATE:
-                    esi_statistics[year]['Economics & Business'] += 1
-                elif 'ENGINEERING' == ti.CATE:
-                    esi_statistics[year]['Engineering'] += 1
-                elif 'ENVIRONMENT/ECOLOGY' == ti.CATE:
-                    esi_statistics[year]['Environment & Ecology'] += 1
-                elif 'GEOSCIENCES' == ti.CATE:
-                    esi_statistics[year]['Geosciences'] += 1
-                elif 'IMMUNOLOGY' == ti.CATE:
-                    esi_statistics[year]['Immunology'] += 1
-                elif 'MATERIALS SCIENCE' == ti.CATE:
-                    esi_statistics[year]['Materials Sciences'] += 1
-                elif 'MATHEMATICS' == ti.CATE:
-                    esi_statistics[year]['Mathematics'] += 1
-                elif 'MICROBIOLOGY' == ti.CATE:
-                    esi_statistics[year]['Microbiology'] += 1
-                elif 'MOLECULAR BIOLOGY & GENETICS' == ti.CATE:
-                    esi_statistics[year]['Molecular Biology & Genetics'] += 1
-                elif 'Multidisciplinary' == ti.CATE:
-                    esi_statistics[year]['Multidisciplinary'] += 1
-                elif 'NEUROSCIENCE & BEHAVIOR' == ti.CATE:
-                    esi_statistics[year]['Neuroscience & Behavior'] += 1
-                elif 'PHARMACOLOGY & TOXICOLOGY' == ti.CATE:
-                    esi_statistics[year]['Pharmacology & Toxicology'] += 1
-                elif 'PHYSICS' == ti.CATE:
-                    esi_statistics[year]['Physics'] += 1
-                elif 'PLANT & ANIMAL SCIENCE' == ti.CATE:
-                    esi_statistics[year]['Plant & Animal Science'] += 1
-                elif 'PSYCHIATRY/PSYCHOLOGY' == ti.CATE:
-                    esi_statistics[year]['Psychology & Psychiatry'] += 1
-                elif 'SOCIAL SCIENCES, GENERAL' == ti.CATE:
-                    esi_statistics[year]['Social Sciences'] += 1
-                else:
-                    esi_statistics[year]['Space Science'] += 1
+        for ti in title_data:
+            if 'AGRICULTURAL SCIENCES' == ti.CATE:
+                esi_statistics[year]['Agricultural Sciences'] += 1
+            elif 'BIOLOGY & BIOCHEMISTRY' == ti.CATE:
+                esi_statistics[year]['Biology & Biochemistry'] += 1
+            elif 'CHEMISTRY' == ti.CATE:
+                esi_statistics[year]['Chemistry'] += 1
+            elif 'CLINICAL MEDICINE' == ti.CATE:
+                esi_statistics[year]['Clinical Medicine'] += 1
+            elif 'COMPUTER SCIENCE' == ti.CATE:
+                esi_statistics[year]['Computer Science'] += 1
+            elif 'ECONOMICS & BUSINESS' == ti.CATE:
+                esi_statistics[year]['Economics & Business'] += 1
+            elif 'ENGINEERING' == ti.CATE:
+                esi_statistics[year]['Engineering'] += 1
+            elif 'ENVIRONMENT/ECOLOGY' == ti.CATE:
+                esi_statistics[year]['Environment & Ecology'] += 1
+            elif 'GEOSCIENCES' == ti.CATE:
+                esi_statistics[year]['Geosciences'] += 1
+            elif 'IMMUNOLOGY' == ti.CATE:
+                esi_statistics[year]['Immunology'] += 1
+            elif 'MATERIALS SCIENCE' == ti.CATE:
+                esi_statistics[year]['Materials Sciences'] += 1
+            elif 'MATHEMATICS' == ti.CATE:
+                esi_statistics[year]['Mathematics'] += 1
+            elif 'MICROBIOLOGY' == ti.CATE:
+                esi_statistics[year]['Microbiology'] += 1
+            elif 'MOLECULAR BIOLOGY & GENETICS' == ti.CATE:
+                esi_statistics[year]['Molecular Biology & Genetics'] += 1
+            elif 'Multidisciplinary' == ti.CATE:
+                esi_statistics[year]['Multidisciplinary'] += 1
+            elif 'NEUROSCIENCE & BEHAVIOR' == ti.CATE:
+                esi_statistics[year]['Neuroscience & Behavior'] += 1
+            elif 'PHARMACOLOGY & TOXICOLOGY' == ti.CATE:
+                esi_statistics[year]['Pharmacology & Toxicology'] += 1
+            elif 'PHYSICS' == ti.CATE:
+                esi_statistics[year]['Physics'] += 1
+            elif 'PLANT & ANIMAL SCIENCE' == ti.CATE:
+                esi_statistics[year]['Plant & Animal Science'] += 1
+            elif 'PSYCHIATRY/PSYCHOLOGY' == ti.CATE:
+                esi_statistics[year]['Psychology & Psychiatry'] += 1
+            elif 'SOCIAL SCIENCES, GENERAL' == ti.CATE:
+                esi_statistics[year]['Social Sciences'] += 1
+            else:
+                esi_statistics[year]['Space Science'] += 1
+
 
         ref_count[year] = year_ref_count * 1
         # times -1 to show the data on the left in the chart
@@ -872,7 +906,7 @@ def Page_annualPublications(request):
         'unit': searchUnit,
     })
 
-#合作论文分布
+# 合作论文分布
 def Page_cooperationTypes(request):
 
     ESI22 = ['None', 'ALL', 'COMPUTER SCIENCE', 'ENGINEERING', 'MATERIALS SCIENCES', 'BIOLOGY & BIOCHEMISTRY',
@@ -1007,10 +1041,27 @@ def Page_cooperationTypes(request):
             ave_num[i] = 0
     coo = zip(coo_type, coo_num, cit_num, ave_num)
 
+    coo_type2 = []
+    for i in coo_type:
+        j = i.decode('utf-8').encode('GB18030')
+        coo_type2.append(j)
+    coo2 = zip(coo_type2, coo_num, cit_num, ave_num)
+    # 将查询结果转化为csv文件形式，方便下载吧保存
+    csvFile2 = open('./static/download/csvFile2.csv', 'wb')  # 设置wb，否则两行之间会空一行
+    writer = csv.writer(csvFile2)
+    m = len(coo2)
+    writer.writerow(["合作类型".decode('utf-8').encode('GB18030'), "论文篇数(篇)".decode('utf-8').encode('GB18030'),
+                     "被引频次".decode('utf-8').encode('GB18030'), "篇均被引".decode('utf-8').encode('GB18030')])
+    for i in range(m):
+        writer.writerow(coo2[i])
+    csvFile2.close()
+
     return render(request, "Page_cooperationTypes.html", {"coo": coo, 'units': units.keys(),
                                                   'unit': searchUnit, 'esis': ESI22, 'esi': searchEsi})
-# 不同期刊论文分布
+
+#论文发布
 def Page_lwfb(request):
+    #查询学科内容
     ESI22 = ['None', 'ALL', 'COMPUTER SCIENCE', 'ENGINEERING', 'MATERIALS SCIENCES', 'BIOLOGY & BIOCHEMISTRY',
              'ENVIRONMENT & ECOLOGY', 'MICROBIOLOGY', 'MOLECULAR BIOLOGY & GENETICS',
              'SOCIAL SCIENCES',
@@ -1019,7 +1070,7 @@ def Page_lwfb(request):
              'AGRICULTURAL SCIENCES', 'PLANT & ANIMAL SCIENCE', 'CLINICAL MEDICINE', 'IMMUNOIOGY',
              'NEUROSCIENCE & BEHAVIOR', 'PHARMACOLOGY & TOXICOLOGY', 'PSYCHOLOGR & PSYCHIATRY',
              'MULTIDISCIPLINARY']
-
+    #查询学院内容
     units = {'总体情况': ' ', '材料与冶金学院': 'Coll Mat & Met|Sch Met & Mat', '理学院': 'Coll Sci',
              '化学工程与技术学院': 'Sch Chem & Chem Engn|Sch Chem Engn & Technol|Coll Chem Engn & Techno',
              '医学院': 'Coll Med|Sch Med',
@@ -1036,9 +1087,9 @@ def Page_lwfb(request):
         searchUnit = searchUnit.encode('utf-8')
         searchEsi = request.POST.get('selesi', None)
     else:
-        searchUnit = "理学院"
+        searchUnit = "理学院"  #设置默认查询结果
         searchEsi = "ALL"
-
+    #学院查询
     for i in units:
         if i != searchUnit:
             continue
@@ -1053,48 +1104,45 @@ def Page_lwfb(request):
 
         data = models.Dissertation.objects.filter(args)
 
-    # ‘排名’和名称
+    # 学科查询
     lis = list(range(1, 31))
     data88 = models.Journals.objects.filter()
     title88 = []
-
     if searchEsi != "ALL":
         for i in data88:
             if searchEsi in i.CATE:
-
                 v = [i.TITLE, i.TITLE29, i.TITLE20]
                 title88.append(v)
-
         for i in range(len(title88)):
             title88[i][0] = str(title88[i][0]).upper()
             title88[i][1] = str(title88[i][1]).upper()
             title88[i][2] = str(title88[i][2]).upper()
-
         data99 = []
         for i in range(len(title88)):
-
             for j in data:
                 j.PUBLICATION = str(j.PUBLICATION)
+                #比较三种期刊类型
                 if title88[i][0] in j.PUBLICATION or title88[i][1] in j.PUBLICATION or title88[i][2] in j.PUBLICATION or j.PUBLICATION in title88[i][0] or j.PUBLICATION in title88[i][1] or j.PUBLICATION in title88[i][2]:
                     data99.append(j)
                     break
         data = data99
 
+    #建立字典，key放来源出版物，value放论文篇数、被引频次、篇均被引
     dic6 = {}
     for i in data:
         strbak = i.PUBLICATION
         strbak = str(strbak)
         dic6[strbak] = [0, 0, 0]
-
     for i in data:
         strbak = i.PUBLICATION
         strbak = str(strbak)
-        dic6[strbak][0] = dic6[strbak][0] + 1
-        dic6[strbak][1] = dic6[strbak][1] + i.TOTALREFCOUNT
-        if dic6[strbak][0] != 0:
+        dic6[strbak][0] = dic6[strbak][0] + 1               #论文篇数
+        dic6[strbak][1] = dic6[strbak][1] + i.TOTALREFCOUNT #被引频次
+        if dic6[strbak][0] != 0:                            #篇均被引
             dic6[strbak][2] = 1.0 * dic6[strbak][1] / dic6[strbak][0]
         else:
             dic6[strbak][2] = 0
+    #将字典dic6的key，value放入列表
     a = []
     b = []
     c = []
@@ -1105,28 +1153,39 @@ def Page_lwfb(request):
         c.append(dic6[k][1])
         d.append(dic6[k][2])
     staffs = zip(lis, a, b, c, d)
-    staffs.sort(key=lambda x: x[4], reverse=True)
+    staffs.sort(key=lambda x: x[4], reverse=True) #按篇均被引排序
+
+    staffs11 = zip(a, b, c, d)
+    staffs11.sort(key=lambda x: x[3], reverse=True)  # 按篇均被引排序
+    # 将查询结果转化为csv文件形式，方便下载吧保存
+    csvFile2 = open('./static/download/csvFile2.csv', 'wb')  # 设置wb，否则两行之间会空一行
+    writer = csv.writer(csvFile2)
+    m = len(staffs11)
+    writer.writerow(["来源出版物".decode('utf-8').encode('GB18030'), "论文篇数".decode('utf-8').encode('GB18030'),
+                     "被引频次".decode('utf-8').encode('GB18030'), "篇均被引".decode('utf-8').encode('GB18030')])
+
+    for i in range(m):
+        writer.writerow(staffs11[i])
+    csvFile2.close()
+
     return render(request, "Page_lwfb.html", {'staffs': staffs, 'units': units.keys(),
                                               'unit': searchUnit, 'esis': ESI22, 'esi': searchEsi})
-# 合作机构分析
-def Page_lwhz(request):
-    type1 = ["AVERAGE", "NUMBER", "FREQUENCY"]
 
+#合作机构分析
+def Page_lwhz(request):
+    #查询类型内容
+    type1 = ["AVERAGE", "NUMBER", "FREQUENCY"]
     if request.method == "POST":
         type2 = request.POST.get('type2', None)
     else:
-        type2 = "AVERAGE"
-
+        type2 = "AVERAGE"   #设置默认选项
     data = models.Dissertation.objects.filter()
-
     dic = {}
-
     for au in data:
         a = []
         b = []
         c = 1
-
-        for i in range(len(au.MECHANISM)):
+        for i in range(len(au.MECHANISM)):      #找出所需MECHANISM指定内容
             if au.MECHANISM[i:i + 2] == "u'":
                 a.append(i)
                 c = 0
@@ -1134,6 +1193,7 @@ def Page_lwhz(request):
                 b.append(i)
                 c = 1
         lis2 = zip(a, b)
+        #初始化字典dic
         for i, j in lis2:
             strbak = au.MECHANISM[i + 2:j]
             if strbak.find("Wuhan Univ Sci") == (-1):
@@ -1144,11 +1204,12 @@ def Page_lwhz(request):
             else:
                 pass
 
+
     for au in data:
         a = []
         b = []
         c = 1
-        for i in range(len(au.MECHANISM)):
+        for i in range(len(au.MECHANISM)):        #找出所需MECHANISM指定内容
             if au.MECHANISM[i:i + 2] == "u'":
                 a.append(i)
                 c = 0
@@ -1156,21 +1217,22 @@ def Page_lwhz(request):
                 b.append(i)
                 c = 1
         lis2 = zip(a, b)
+        #字典dic，key放合作单位，value放论文篇数、被引频次、篇均被引
         for i, j in lis2:
             strbak = au.MECHANISM[i + 2:j]
             if strbak.find("Wuhan Univ Sci") == (-1):
                 if ']' in strbak:
                     strbak = strbak.split(']')[1]
                 strbak = str(strbak)
-                dic[strbak][0] = dic[strbak][0] + 1
-                dic[strbak][1] = dic[strbak][1] + au.TOTALREFCOUNT
-                if dic[strbak][0] != 0:
+                dic[strbak][0] = dic[strbak][0] + 1                    #论文篇数
+                dic[strbak][1] = dic[strbak][1] + au.TOTALREFCOUNT     #被引频次
+                if dic[strbak][0] != 0:                                #篇均被引
                     dic[strbak][2] = 1.0 * dic[strbak][1] / dic[strbak][0]
                 else:
                     dic[strbak][2] = 0
             else:
                 pass
-
+    #将字典dic6的key，value放入列表
     a = []
     b = []
     c = []
@@ -1181,16 +1243,28 @@ def Page_lwhz(request):
         c.append(dic[k][1])
         d.append(dic[k][2])
     e = zip(a, b, c, d)
-    if type2 == "AVERAGE":
+
+    #判断为那种查询类型
+    if type2 == "AVERAGE":                         #按篇均被引
         e.sort(key=lambda x: x[3], reverse=True)
-    if type2 == "NUMBER":
+    if type2 == "NUMBER":                          #按论文篇数
         e.sort(key=lambda x: x[1], reverse=True)
-    if type2 == "FREQUENCY":
+    if type2 == "FREQUENCY":                       #按被引频次
         e.sort(key=lambda x: x[2], reverse=True)
 
+    # 将查询结果转化为csv文件形式，方便下载吧保存
+    csvFile2 = open('./static/download/csvFile2.csv', 'wb')  # 设置wb，否则两行之间会空一行
+    writer = csv.writer(csvFile2)
+    m = len(e)
+    writer.writerow(["合作单位".decode('utf-8').encode('GB18030'), "论文篇数".decode('utf-8').encode('GB18030'),
+                     "被引频次".decode('utf-8').encode('GB18030'), "	篇均被引".decode('utf-8').encode('GB18030')])
+
+    for i in range(m):
+        writer.writerow(e[i])
+    csvFile2.close()
     return render(request, "Page_lwhz.html", {"lis": e, "type1": type1, "type2": type2})
 
-#二级单位论文贡献
+# 二级单位论文贡献
 def Page_journalsContribution(request):
     institutionDict = {
         '材料与冶金学院': ['Coll Mat & Met', 'Sch Met & Mat'],
@@ -1257,7 +1331,7 @@ def Page_journalsContribution(request):
     else:
         return render(request, "login.html", {"message": "走正门"})
 
-#上传期刊Excel文件并保存至static/journalsExcelFolder
+# 上传期刊Excel文件并保存至static/journalsExcelFolder
 def Page_journalsImport(request):
 
     # if request.method == "POST":  # 请求方法为POST时，进行处理
@@ -1275,7 +1349,8 @@ def Page_journalsImport(request):
     #     return HttpResponse("上传成功")
 
     return render(request,"Page_journalsImport.html")
-#上传职工Excel文件并保存到static/staffsExcelFolder
+
+# 上传职工Excel文件并保存到static/staffsExcelFolder
 def Page_staffsImport(request):
 
     if request.method == "POST":  # 请求方法为POST时，进行处理
@@ -1294,7 +1369,7 @@ def Page_staffsImport(request):
 
     return render(request,"Page_staffsImport.html")
 
-#解析期刊Excel数据存入数据库
+# 解析期刊Excel数据存入数据库
 def JournalsDBAppend():
 
     excelfolderpath = ".\static\journalsExcelFolder\\"
@@ -1336,7 +1411,7 @@ def JournalsDBAppend():
 
     conn.close()
 
-#解析员工Excel导入数据库
+# 解析员工Excel导入数据库
 def staffsDBAppend():
     excelfolderpath = ".\static\staffsExcelFolder\\"
 

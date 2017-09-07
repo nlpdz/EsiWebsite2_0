@@ -8,6 +8,13 @@
             document.getElementById("units").submit()
         }
     </script>
+    <style type="text/css">
+        #cc{
+            position: absolute;
+            left: 1100px;
+            top: 10px;
+        }
+    </style>
 </head>
 <body>
     <h1>作者排名分析</h1>
@@ -16,7 +23,7 @@
     <form id="units" action="#" method="post">
         <select name="selunit" onchange="postunit()" type="select" data-inline="true">
             {% for u in units %}
-                <option value={{ u }}>{{ u }}</option>
+                <option selected="selected" value={{ u }}>{{ u }}</option>
             {% endfor %}
         </select>
         <select id="selesi" name="selesi" onchange="postunit1()" type="select" data-inline="true">
@@ -24,6 +31,12 @@
                 <option value={{ u }}>{{ u }}</option>
             {% endfor %}
         </select>
+    <span  id="cc" style="width:100px ">
+
+        <a href="./static/download/csvFile2.csv" target="_self">
+            <img src="static/imgs/save.png" width="20px" height="20px"  />
+        </a>
+    </span>
     </form>
     <hr/>
     <table class="GridBackColor">

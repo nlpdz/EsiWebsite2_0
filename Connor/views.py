@@ -1816,8 +1816,12 @@ def Page_staffsContribution(request):
                     break
         lis3.append(num)
         lis5.append(av)
-        lis4.append(1.0 * num / len(data))
-        lis6.append(1.0 * av / rec_num)
+        e = 1.0 * num / len(data)
+        f = Decimal(e).quantize(Decimal('0.0000'))
+        lis4.append(f)
+        g = 1.0 * av / rec_num
+        h = Decimal(g).quantize(Decimal('0.0000'))
+        lis6.append(h)
 
     lis1 = range(1, 31)
 

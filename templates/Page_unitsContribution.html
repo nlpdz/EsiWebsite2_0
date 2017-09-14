@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="/static/css/tabel.css" rel="stylesheet" type="text/css">
+    <script>
+        function postesi() {
+            document.getElementById("units").submit()
+        }
+    </script>
+    <style type="text/css">
+        #cc{
+            position: absolute;
+            left: 1100px;
+            top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>二级单位贡献度</h1>
+    <h2 align="center">{{ selyear }} {{ selesi }}</h2>
+    <h3 align="left">选择检索条件</h3>
+    <form id="units" action="#" method="post">
+        <select name="selyear" onchange="postyear()" type="select" data-inline="true">
+            {% for u in year %}
+                <option selected="selected" value={{ u }}>{{ u }}</option>
+            {% endfor %}
+        </select>
+        <select name="selesi" onchange="postesi()" type="select" data-inline="true">
+            {% for u in ESI22 %}
+                <option value={{ u }}>{{ u }}</option>
+            {% endfor %}
+        </select>
+{#    <span  id="cc" style="width:100px ">#}
+{##}
+{#        <a href="./static/download/csvFile2.csv" target="_self">#}
+{#            <img src="static/imgs/save.png" width="20px" height="20px"  />#}
+{#        </a>#}
+{#    </span>#}
+    </form>
+    <hr/>
+    <table class="GridBackColor">
+        <tbody>
+            <tr class="GridHeadBackColor">
+                <td style="width: 180px">
+                    <a>贡献度排名</a>
+                </td>
+                <td>
+                    <a>院系名称</a>
+                </td>
+                <td>
+                    <a>论文篇数(篇)</a>
+                </td>
+                <td>
+                    <a>论文数量占比</a>
+                </td>
+                <td>
+                    <a>被引频次(次)</a>
+                </td>
+                <td>
+                    <a>被引频次占比</a>
+                </td>
+            </tr>
+            {% for i,j,k,l,m,n in z %}
+            <tr onmouseover="javascript:this.bgColor='#C7F8AE';" onmouseout="javascript:this.bgColor='#ffffff';" bgcolor="#ffffff">
+                <td style="width:100px;">
+                    {{ i }}
+                </td>
+                <td>
+                    {{ j }}
+                </td>
+                <td>
+                    {{ k }}
+                </td>
+                <td>
+                    {{ l }}
+                </td>
+                <td>
+                    {{ m }}
+                </td>
+                <td>
+                    {{ n }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -5,20 +5,34 @@
     <title>Title</title>
     <link type="text/css" href="/static/css/tabel.css" rel="stylesheet">
     <script>
-        function postyear() {
+        function postmonth1() {
             document.getElementById("year").submit()
         }
     </script>
 </head>
 <body>
-    <h1 class="h1">引用关系</h1>
-
+    <h1>引用关系</h1>
+    <h2 align="center">{{ searchYear }}&nbsp;&nbsp;&nbsp; {{ month1 }}&nbsp; ~&nbsp; {{ month2 }}</h2>
     <form id="year" action="#" method="post">
-        <select name="selyear" onchange="postyear()" style="width: 75px">
+        年份：<select name="selyear" onchange="postyear()" style="width: 75px">
             {% for y in year %}
                 <option value={{ y }}>{{ y }}年</option>
             {% endfor %}
         </select>
+        月份：<select name="month1" onchange="postmonth()" type="select" data-inline="true">
+            {% for u in month11 %}
+                <option selected="selected" value={{ u }}>{{ u }}</option>
+            {% endfor %}
+        </select>
+        ~<select name="month2" onchange="postmonth1()" type="select" data-inline="true">
+            {% for u in month %}
+                <option selected="selected" value={{ u }}>{{ u }}</option>
+            {% endfor %}
+        </select>
+    &nbsp;&nbsp;&nbsp;
+        标题总数：{{ b }}&nbsp;&nbsp;&nbsp;
+        被引标题总数：{{ a }}
+    &nbsp;&nbsp;&nbsp;
     </form>
     <hr/>
     <table class="GridBackColor">

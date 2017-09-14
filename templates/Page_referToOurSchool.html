@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link type="text/css" href="/static/css/tabel.css" rel="stylesheet">
+    <script>
+        function postmonth1() {
+            document.getElementById("year").submit()
+        }
+    </script>
+    <style type="text/css">
+        #cc{
+            position: absolute;
+            left: 1100px;
+            top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>我校引用我校论文分析</h1>
+    <h2 align="center">{{ searchYear }}&nbsp;&nbsp;&nbsp; {{ month1 }}&nbsp; ~&nbsp; {{ month2 }}</h2>
+    <form id="year" action="#" method="post">
+        年份：<select name="selyear" onchange="postyear()" style="width: 75px">
+            {% for y in year %}
+                <option value={{ y }}>{{ y }}年</option>
+            {% endfor %}
+        </select>
+        &nbsp;&nbsp;&nbsp;
+        ESI学科：<select name="esi" onchange="esi()" type="select" data-inline="true">
+            {% for u in ESI22 %}
+                <option selected="selected" value={{ u }}>{{ u }}</option>
+            {% endfor %}
+        </select>
+    &nbsp;&nbsp;&nbsp;
+        月份：<select name="month1" onchange="postmonth()" type="select" data-inline="true">
+            {% for u in month11 %}
+                <option selected="selected" value={{ u }}>{{ u }}</option>
+            {% endfor %}
+        </select>
+        ~<select name="month2" onchange="postmonth1()" type="select" data-inline="true">
+            {% for u in month %}
+                <option selected="selected" value={{ u }}>{{ u }}</option>
+            {% endfor %}
+        </select>
+    &nbsp;&nbsp;&nbsp;
+        标题总数：{{ a }}&nbsp;&nbsp;&nbsp;
+        引用文章数：{{ b }}
+
+    </form>
+    <hr/>
+    <table class="GridBackColor">
+        <tbody>
+            <tr class="GridHeadBackColor">
+                <td>
+                    <a style="text-align: center">标题</a>
+                </td>
+                <td>
+                    <a style="text-align: center">被引用文章标题</a>
+                </td>
+            </tr>
+            {% for paper in paper_pair %}
+                {% for line in paper %}
+                    <tr onmousemove="javascript:this.bgColor='#C7F8AE';" onmouseout="javascript:this.bgColor='#ffffff';" bgcolor="#ffffff">
+                        <td>
+                            {{ line.TITLE }}
+                        </td>
+                        <td>
+                            {{ line.REFERENCE_TITLE }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+
+        </tbody>
+    </table>
+</body>
+</html>

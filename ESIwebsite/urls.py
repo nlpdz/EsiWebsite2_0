@@ -38,6 +38,10 @@ urlpatterns = [
     url(r'^Page_journalsContribution', views.Page_journalsContribution),
     url(r'^Page_staffsImport', views.Page_staffsImport),
     url(r'^Page_journalsImport', views.Page_journalsImport),
+    url(r'^Page_unitsContribution', views.Page_unitsContribution),
+    url(r'^Page_staffsContribution', views.Page_staffsContribution),
+    url(r'^Page_referToOurSchool', views.Page_referToOurSchool),
+    url(r'^Page_newIncrease', views.Page_newIncrease),
 
 
 

@@ -14,13 +14,14 @@ import numpy as np
 import os
 import xlrd
 import sqlite3
+from decimal import Decimal
 
 # Create your views here.
 
 # 登陆界面控制器
 def login(request):
-
     return render(request, "login.html")
+
 # 主界面框架控制器
 def index(request):
     if request.method == "POST":
@@ -46,6 +47,7 @@ def topFrame(request):
         return render(request, "topFrame.html")
     else:
         return render(request, "login.html", {"message": "走正门"})
+
 
 # 主界面顶部第二栏控制器
 def colFrame(request):
@@ -119,14 +121,12 @@ def PageFrame(request):
 def qwer(*args):
     data = models.Dissertation.objects.filter(*args)
     return data
-def mespaper_data(year,*args):
+def mespaper_data(year, *args):
     paper_data = models.Dissertation.objects.filter(*args, DATE__contains=year)
     return paper_data
-
 def mespaper_data2(*args):
     paper_data = models.Dissertation.objects.filter(*args)
     return paper_data
-
 def mesname(names, refclist, *args):
     # 对空字典先做有序处理，这样在输出字典的时候也会有序输出
     dic = collections.OrderedDict()
@@ -143,6 +143,7 @@ def mesname(names, refclist, *args):
         dic.setdefault('%s' % refc, names['rec%s' % refc])
         # dic['%s' % refc] = names['rec%s' % refc]
     return dic
+
 # 作者分析，包括排名，论文篇数，被引频次，国际合作论文
 def Page_lwtj(request):
     if request.session.get('username', None):
@@ -170,7 +171,7 @@ def Page_lwtj(request):
                  '汽车与交通工程学院': 'Sch Automobile & Traff Engn'}
         if request.method == "POST":
             searchUnit = request.POST.get('selunit', None)
-            searchUnit = searchUnit.encode('utf-8')    # 必须把传过来的中文encode('utf-8')才能使用
+            searchUnit = searchUnit.encode('utf-8')  # 必须把传过来的中文encode('utf-8')才能使用
             searchEsi = request.POST.get('selesi', None)
         else:
             searchUnit = '理学院'
@@ -179,7 +180,7 @@ def Page_lwtj(request):
         for i in units:
             if i != searchUnit:
                 continue
-            newunits = units[i].split('|')    # 把units切分，便于做解析
+            newunits = units[i].split('|')  # 把units切分，便于做解析
 
             if len(newunits) == 3:
                 args = (Q(MECHANISM__icontains=newunits[0]) | Q(MECHANISM__icontains=newunits[1]) | Q(
@@ -191,29 +192,30 @@ def Page_lwtj(request):
 
             data = models.Dissertation.objects.filter(args)  # 先过滤出所需的文章对象，便于后面处理，同时也能加快运行速度
 
-        data88 = models.Journals.objects.filter()   # 过滤出期刊对象
+        data88 = models.Journals.objects.filter()  # 过滤出期刊对象
         title88 = []
         if searchEsi != "ALL":
             for i in data88:
                 if searchEsi in i.CATE:
-                    v = [i.TITLE, i.TITLE29, i.TITLE20]   #将期刊的三种简写以列表的形式追加到title88
+                    v = [i.TITLE, i.TITLE29, i.TITLE20]  # 将期刊的三种简写以列表的形式追加到title88
                     title88.append(v)
 
             for i in range(len(title88)):
-                title88[i][0] = str(title88[i][0]).upper()   # 将title88中的 unicode 编码转化成大写字符串格式
+                title88[i][0] = str(title88[i][0]).upper()  # 将title88中的 unicode 编码转化成大写字符串格式
                 title88[i][1] = str(title88[i][1]).upper()
                 title88[i][2] = str(title88[i][2]).upper()
             for j in data:
                 j.PUBLICATION = str(j.PUBLICATION).upper()
 
             data99 = []
-            for i in range(len(title88)):                     #将title88中的 期刊与 data中的publication比较，然后过滤到data99
+            for i in range(len(title88)):  # 将title88中的 期刊与 data中的publication比较，然后过滤到data99
                 for j in data:
-                    if title88[i][0] in j.PUBLICATION or title88[i][1] in j.PUBLICATION or title88[i][2] in j.PUBLICATION or j.PUBLICATION in title88[i][0] or j.PUBLICATION in title88[i][1] or j.PUBLICATION in title88[i][2]:
+                    if title88[i][0] in j.PUBLICATION or title88[i][1] in j.PUBLICATION or title88[i][
+                        2] in j.PUBLICATION or j.PUBLICATION in title88[i][0] or j.PUBLICATION in title88[i][
+                        1] or j.PUBLICATION in title88[i][2]:
                         data99.append(j)
                         break
             data = data99
-
 
         # 把所有的作者全称存入一个列表aulist
         aulist = []
@@ -237,12 +239,12 @@ def Page_lwtj(request):
             for j in i:
                 j = str(j)
                 j = j.replace(',', '')
-                j = j.replace('-', '')    # 去掉作者写法中的 ',' 和 '-' ,然后全部转化成小写
+                j = j.replace('-', '')  # 去掉作者写法中的 ',' 和 '-' ,然后全部转化成小写
                 j = j.lower()
                 a.append(j)
             b.append(a)
 
-        aulist=b
+        aulist = b
 
         # 将Staffs表中的三个字段分别存进三个列表
         unit1 = []
@@ -265,7 +267,7 @@ def Page_lwtj(request):
             a.append(i)
         en = a
 
-        #统计篇数
+        # 统计篇数
         paper_num = []
         for i in en:
             c = 0
@@ -276,7 +278,7 @@ def Page_lwtj(request):
                         break
             paper_num.append(c)
 
-        #统计 被引频次
+        # 统计 被引频次
         z = zip(data, aulist)
 
         paper_cited = []
@@ -290,7 +292,7 @@ def Page_lwtj(request):
                         break
             paper_cited.append(c)
 
-        #统计国际合作单位
+        # 统计国际合作单位
         internation = []
         for n in en:
             coo_num = 0
@@ -308,7 +310,7 @@ def Page_lwtj(request):
         d = zip(paper_num, cn, unit1, paper_cited, internation)
         for i in range(len(paper_num)):
             lis1.append(d[i])
-        lis1 = sorted(lis1, reverse=True)    #将压缩的d一个一个对象存入lis1 然后对lis1排序,默认按照第一个paper_num排序
+        lis1 = sorted(lis1, reverse=True)  # 将压缩的d一个一个对象存入lis1 然后对lis1排序,默认按照第一个paper_num排序
         lis2 = []
         for i in lis1:
             if i[0] != 0:
@@ -325,11 +327,11 @@ def Page_lwtj(request):
             unit2.append(i[2])
             paper_cited2.append(i[3])
             internation2.append(i[4])
-        lis = list(range(1, len(lis2)))    #排名
+        lis = list(range(1, len(lis2)))  # 排名
         staffs = zip(lis, unit2, cn2, en, paper_num2, paper_cited2, internation2)
         cn3 = []
         for i in cn2:
-            j = i.encode('GB18030')   # 神奇的 GB18030 ,其他的都不行！
+            j = i.encode('GB18030')  # 神奇的 GB18030 ,其他的都不行！
             cn3.append(j)
         staffs11 = zip(lis, cn3, paper_num2, paper_cited2, internation2)
         # 将查询结果转化为csv文件形式，方便下载保存
@@ -368,7 +370,7 @@ publication122 = []
 totalcount122 = []
 esi22 = []
 
-#论文查询
+# 论文查询
 def Page_lwzl(request):
     if request.method == "GET":
 
@@ -379,6 +381,8 @@ def Page_lwzl(request):
             date = request.GET.get('date')
             hightref = request.GET.get('hightref')
             hot = request.GET.get('hot')
+            month1 = request.GET.get('month1')
+            month2 = request.GET.get('month2')
 
             from django.db.models import Q
             global data22
@@ -393,14 +397,16 @@ def Page_lwzl(request):
             global totalcount122
             global esi22
 
+            month = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC', 'ALL']
+
             args = (Q())
 
-            #将前端传来查询变量放入字典
+            # 将前端传来查询变量放入字典
             dic = {"TITLE__contains": title, "AULIST__contains": author, "DATE__contains": date,
                    "HIGHTREF__contains": hightref, "HOT__contains": hot}
             dic1 = {}
             lis = []
-            #将字典dic中value不为空的放入dic1
+            # 将字典dic中value不为空的放入dic1
             for k, v in dic.items():
                 if v:
                     dic1[k] = v
@@ -409,7 +415,7 @@ def Page_lwzl(request):
             lissearch = []
             dicarg = [title, author, date, hightref, hot]
 
-            #找出不为空的传值
+            # 找出不为空的传值
             for i in xrange(len(dicarg)):
                 if dicarg[i] != '':
                     lissearch.append(lis[i])
@@ -421,8 +427,34 @@ def Page_lwzl(request):
                     args = args & lissearch[i]
             args = (args)
 
-            page = request.GET.get('page') #得到网页页码
+            page = request.GET.get('page')  # 得到网页页码
             data22 = qwer(args)
+
+            data33 = []
+            month1 = str(month1)
+            month2 = str(month2)
+            # 查询两个月份之间的文章
+            if month1 != 'ALL' and month2 != 'ALL':
+                for d in data22:
+                    abc = 1
+                    for m in month:
+                        if month1 == m:
+                            abc = 0
+                        if month2 == m:
+                            abc = 1
+                        if abc == 0:
+                            if m in d.DATE:
+                                data33.append(d)
+                    if month2 in d.DATE:
+                        data33.append(d)
+                data22 = data33
+            # 按论文发表月份从小到大排序
+            data44 = []
+            for i in month:
+                for d in data22:
+                    if i in d.DATE:
+                        data44.append(d)
+            data22 = data44
 
             for i in data22:
                 title122.append(i.TITLE)
@@ -448,7 +480,7 @@ def Page_lwzl(request):
                     esi22.append(title[0].CATE)
                 else:
                     esi22.append("no")
-            #遍历作者，挑选出需要的()内的内容
+            # 遍历作者，挑选出需要的()内的内容
             aulist22 = []
             for au in data22:
                 a = []
@@ -466,7 +498,7 @@ def Page_lwzl(request):
 
                 aulist22.append(author122)
 
-            #遍历合作机构，挑选出需要的内容
+            # 遍历合作机构，挑选出需要的内容
             mechanism22 = []
             for au in data22:
                 a = []
@@ -494,9 +526,9 @@ def Page_lwzl(request):
 
             List22 = map(str, range(1, 1000))
 
-            contact_list = data22.all()
+            contact_list = data22
 
-            #分页代码
+            # 分页代码
             paginator = Paginator(contact_list, 10)
             paginator1 = Paginator(aulist22, 10)
             paginator2 = Paginator(mechanism22, 10)
@@ -527,7 +559,7 @@ def Page_lwzl(request):
             listall = zip(List22, title122, aulist22, publication122, mechanism22, date122, esi22, totalcount122,
                           hot122, hightref122)
 
-            #将查询结果转化为csv文件形式，方便下载吧保存
+            # 将查询结果转化为csv文件形式，方便下载吧保存
             csvFile2 = open('./static/download/csvFile2.csv', 'wb')  # 设置wb，否则两行之间会空一行
             writer = csv.writer(csvFile2)
             m = len(listall)
@@ -541,15 +573,15 @@ def Page_lwzl(request):
                 writer.writerow(listall[i])
             csvFile2.close()
 
-            dict = {"lis": lis, "contacts": contacts}
+            dict = {"lis": lis, "contacts": contacts, "month": month}
 
             return render(request, "Page_lwzl.html", dict)
         elif request.GET.get('page') > 1:
 
             page = request.GET.get('page')
-            contact_list = data22.all()
+            contact_list = data22
 
-            #分页代码
+            # 分页代码
             paginator = Paginator(contact_list, 10)  #
             paginator1 = Paginator(aulist22, 10)
             paginator2 = Paginator(mechanism22, 10)
@@ -575,31 +607,70 @@ def Page_lwzl(request):
                 esi66 = paginator4.page(paginator.num_pages)
                 contacts = paginator.page(paginator.num_pages)
             lis = zip(contacts, List66, aulist66, mechanism66, esi66)
-
-            dict = {"lis": lis, "contacts": contacts}
+            month = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC', 'ALL']
+            dict = {"lis": lis, "contacts": contacts, "month": month}
 
             return render(request, "Page_lwzl.html", dict)
 
         else:
-            return render(request, "Page_lwzl.html")
+            month = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC', 'ALL']
+            return render(request, "Page_lwzl.html", {"month": month})
 
     return render(request, "login.html", {"message": "走正门"})
 
 # 近十年论文被引关系
 def Page_yygx(request):
-    import time
     thisyear = int(time.strftime('%Y', time.localtime(time.time())))
     year = [x for x in range(thisyear - 10, thisyear + 1)]
     paper_pair = []
+    month = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC', 'ALL', 'none']
+    month11 = ['FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC', 'JAN']
     if request.method == "POST":
         searchYear = request.POST.get('selyear', None)
+        month1 = request.POST.get('month1', None)
+        month2 = request.POST.get('month2', None)
+
     else:
-        searchYear = thisyear-10
-    paper_list = models.Dissertation.objects.values("TITLE").filter(DATE__contains=searchYear)[:10]
+        searchYear = thisyear - 10
+        month1 = request.POST.get('month1', None)
+        month2 = request.POST.get('month2', None)
+    paper_list = models.Dissertation.objects.filter(DATE__contains=searchYear)
+    data33 = []
+    month1 = str(month1)
+    month2 = str(month2)
+    # 查询两个月份之间的文章
+    if month2 != 'ALL':
+        for d in paper_list:
+            abc = 1
+            for m in month:
+                if month1 == m:
+                    abc = 0
+                if month2 == m:
+                    abc = 1
+                if abc == 0:
+                    if m in d.DATE:
+                        data33.append(d)
+            if month2 in d.DATE:
+                data33.append(d)
+        paper_list = data33
+    data44 = []
+    # 按该论文发表月份从小到大排序
+    for i in month:
+        for d in paper_list:
+            if i in d.DATE:
+                data44.append(d)
+    paper_list = data44
+    a = len(paper_list)
     for paper in paper_list:
-        refer = models.refer.objects.filter(TITLE__contains=paper['TITLE'])
+        refer = models.refer.objects.filter(TITLE__contains=paper.TITLE)
         paper_pair.append(refer)
-    return render(request, "Page_yygx.html", {"year": year, "paper_pair": paper_pair})
+    b = 0
+    for i in paper_pair:
+        b += len(i)
+
+    return render(request, "Page_yygx.html", {"year": year, "paper_pair": paper_pair, "month": month, "a": a, "b": b,
+                                              "searchYear": searchYear, "month1": month1, "month2": month2,
+                                              "month11": month11})
 
 # 被引频次分布
 def Page_citationFrequency(request):
@@ -629,7 +700,8 @@ def Page_citationFrequency(request):
         newunits = units[i].split('|')
 
         if len(newunits) == 3:
-            args = (Q(MECHANISM__icontains=newunits[0]) | Q(MECHANISM__icontains=newunits[1]) | Q(MECHANISM__icontains=newunits[2]))
+            args = (Q(MECHANISM__icontains=newunits[0]) | Q(MECHANISM__icontains=newunits[1]) | Q(
+                MECHANISM__icontains=newunits[2]))
             dic = mesname(names, refclist, args)
         elif len(newunits) == 2:
             args = (Q(MECHANISM__icontains=newunits[0]) | Q(MECHANISM__icontains=newunits[1]))
@@ -657,12 +729,12 @@ def Page_citationFrequency(request):
         esi_statistics[i] = esi_category.copy()
         args1 = args1 & lis[j]
         args1 = (args1)
-        #过滤得到二级单位，及对应的被引频次区间的所有对象，存入paper_data
+        # 过滤得到二级单位，及对应的被引频次区间的所有对象，存入paper_data
         paper_data = mespaper_data2(args1)
 
         paper_publication = []
         title_data = []
-        #遍历paper_data,将文章的发表刊物存在  paper_publication
+        # 遍历paper_data,将文章的发表刊物存在  paper_publication
         for paper in paper_data:
             paper_publication.append(paper.PUBLICATION)
 
@@ -672,7 +744,7 @@ def Page_citationFrequency(request):
                 if publication in k.TITLE or publication in k.TITLE20 or publication in k.TITLE29 or k.TITLE in publication or k.TITLE20 in publication or k.TITLE29 in publication:
                     title_data.append(k)
                     break
-            #title_data.append(models.Journals.objects.filter(Q(TITLE__icontains=publication) | Q(TITLE29__icontains=publication) | Q(TITLE20__icontains=publication)))
+                    # title_data.append(models.Journals.objects.filter(Q(TITLE__icontains=publication) | Q(TITLE29__icontains=publication) | Q(TITLE20__icontains=publication)))
 
         # 遍历title_data ,判断属于哪个ESI学科，并存入对应的esi_statistics 列表。
         for ti in title_data:
@@ -792,7 +864,6 @@ def Page_annualPublications(request):
              '生物医学研究院': 'Inst Biol & Med', '附属普仁医院': 'Puren Hosp', '城市建设学院': 'Coll Urban Construct',
              '武汉科技大学城市学院': 'City Coll', '文法与经济学院': 'Res Ctr SME', '汉阳医院': 'Hanyang Hosp',
              '汽车与交通工程学院': 'Sch Automobile & Traff Engn'}
-    refclist = ['0', '1', '2', '3', '4', '5~10', '11~20', '21~30', '31~50', '51~70', '71~100', '101~150', '>=150']
     names = locals()
     if request.method == "POST":
         searchUnit = request.POST.get('selunit', None)
@@ -845,7 +916,7 @@ def Page_annualPublications(request):
                 if publication in k.TITLE or publication in k.TITLE20 or publication in k.TITLE29 or k.TITLE in publication or k.TITLE20 in publication or k.TITLE29 in publication:
                     title_data.append(k)
                     break
-            #title_data.append(models.Journals.objects.filter(Q(TITLE__icontains=publication) | Q(TITLE29__icontains=publication) | Q(TITLE20__icontains=publication)))
+                    # title_data.append(models.Journals.objects.filter(Q(TITLE__icontains=publication) | Q(TITLE29__icontains=publication) | Q(TITLE20__icontains=publication)))
         # 遍历title_data ,判断属于哪个ESI学科，并存入对应的esi_statistics 列表。
         for ti in title_data:
             if 'AGRICULTURAL SCIENCES' == ti.CATE:
@@ -893,7 +964,6 @@ def Page_annualPublications(request):
             else:
                 esi_statistics[year]['Space Science'] += 1
 
-
         ref_count[year] = year_ref_count * 1
         # times -1 to show the data on the left in the chart
         total_count[year] = year_total_count * -1
@@ -908,7 +978,6 @@ def Page_annualPublications(request):
 
 # 合作论文分布
 def Page_cooperationTypes(request):
-
     ESI22 = ['None', 'ALL', 'COMPUTER SCIENCE', 'ENGINEERING', 'MATERIALS SCIENCES', 'BIOLOGY & BIOCHEMISTRY',
              'ENVIRONMENT & ECOLOGY', 'MICROBIOLOGY', 'MOLECULAR BIOLOGY & GENETICS',
              'SOCIAL SCIENCES',
@@ -954,7 +1023,7 @@ def Page_cooperationTypes(request):
         data = models.Dissertation.objects.filter(args)
 
     data88 = models.Journals.objects.filter()
-    title88 =[]
+    title88 = []
 
     if searchEsi != "ALL":
         for i in data88:
@@ -971,20 +1040,22 @@ def Page_cooperationTypes(request):
         data99 = []
         for i in range(len(title88)):
             for j in data:
-                if title88[i][0] in j.PUBLICATION or title88[i][1] in j.PUBLICATION or title88[i][2] in j.PUBLICATION or j.PUBLICATION in title88[i][0] or j.PUBLICATION in title88[i][1] or j.PUBLICATION in title88[i][2]:
+                if title88[i][0] in j.PUBLICATION or title88[i][1] in j.PUBLICATION or title88[i][
+                    2] in j.PUBLICATION or j.PUBLICATION in title88[i][0] or j.PUBLICATION in title88[i][
+                    1] or j.PUBLICATION in title88[i][2]:
                     data99.append(j)
                     break
         data = data99
 
-    #统计篇数
-    independence_coo = 0    #独立发表
-    domestic_coo = 0    #国内合作
-    internation_coo = 0 #国际合作
-    HongKong_coo = 0    #香港合作
+    # 统计篇数
+    independence_coo = 0  # 独立发表
+    domestic_coo = 0  # 国内合作
+    internation_coo = 0  # 国际合作
+    HongKong_coo = 0  # 香港合作
     Taiwan_coo = 0
     Macao_coo = 0
 
-    #被引频次
+    # 被引频次
     independence_cit = 0
     domestic_cit = 0
     internation_cit = 0
@@ -998,7 +1069,7 @@ def Page_cooperationTypes(request):
                 internation_coo += 1
                 internation_cit += paper.REFERCOUNT
                 break
-        a=0
+        a = 0
         for each in paper.MECHANISM.split("u'")[1:-1]:
             if 'China' not in each:
                 a = 1
@@ -1037,6 +1108,7 @@ def Page_cooperationTypes(request):
     for i in range(len(coo_num)):
         if coo_num[i] != 0:
             ave_num[i] = cit_num[i] * 1.0 / coo_num[i]
+            ave_num[i] = Decimal(ave_num[i]).quantize(Decimal('0.00'))
         else:
             ave_num[i] = 0
     coo = zip(coo_type, coo_num, cit_num, ave_num)
@@ -1057,11 +1129,11 @@ def Page_cooperationTypes(request):
     csvFile2.close()
 
     return render(request, "Page_cooperationTypes.html", {"coo": coo, 'units': units.keys(),
-                                                  'unit': searchUnit, 'esis': ESI22, 'esi': searchEsi})
+                                                          'unit': searchUnit, 'esis': ESI22, 'esi': searchEsi})
 
-#论文发布
+# 期刊论文发布
 def Page_lwfb(request):
-    #查询学科内容
+    # 查询学科内容
     ESI22 = ['None', 'ALL', 'COMPUTER SCIENCE', 'ENGINEERING', 'MATERIALS SCIENCES', 'BIOLOGY & BIOCHEMISTRY',
              'ENVIRONMENT & ECOLOGY', 'MICROBIOLOGY', 'MOLECULAR BIOLOGY & GENETICS',
              'SOCIAL SCIENCES',
@@ -1070,7 +1142,7 @@ def Page_lwfb(request):
              'AGRICULTURAL SCIENCES', 'PLANT & ANIMAL SCIENCE', 'CLINICAL MEDICINE', 'IMMUNOIOGY',
              'NEUROSCIENCE & BEHAVIOR', 'PHARMACOLOGY & TOXICOLOGY', 'PSYCHOLOGR & PSYCHIATRY',
              'MULTIDISCIPLINARY']
-    #查询学院内容
+    # 查询学院内容
     units = {'总体情况': ' ', '材料与冶金学院': 'Coll Mat & Met|Sch Met & Mat', '理学院': 'Coll Sci',
              '化学工程与技术学院': 'Sch Chem & Chem Engn|Sch Chem Engn & Technol|Coll Chem Engn & Techno',
              '医学院': 'Coll Med|Sch Med',
@@ -1087,9 +1159,9 @@ def Page_lwfb(request):
         searchUnit = searchUnit.encode('utf-8')
         searchEsi = request.POST.get('selesi', None)
     else:
-        searchUnit = "理学院"  #设置默认查询结果
+        searchUnit = "理学院"  # 设置默认查询结果
         searchEsi = "ALL"
-    #学院查询
+    # 学院查询
     for i in units:
         if i != searchUnit:
             continue
@@ -1121,13 +1193,15 @@ def Page_lwfb(request):
         for i in range(len(title88)):
             for j in data:
                 j.PUBLICATION = str(j.PUBLICATION)
-                #比较三种期刊类型
-                if title88[i][0] in j.PUBLICATION or title88[i][1] in j.PUBLICATION or title88[i][2] in j.PUBLICATION or j.PUBLICATION in title88[i][0] or j.PUBLICATION in title88[i][1] or j.PUBLICATION in title88[i][2]:
+                # 比较三种期刊类型
+                if title88[i][0] in j.PUBLICATION or title88[i][1] in j.PUBLICATION or title88[i][
+                    2] in j.PUBLICATION or j.PUBLICATION in title88[i][0] or j.PUBLICATION in title88[i][
+                    1] or j.PUBLICATION in title88[i][2]:
                     data99.append(j)
                     break
         data = data99
 
-    #建立字典，key放来源出版物，value放论文篇数、被引频次、篇均被引
+    # 建立字典，key放来源出版物，value放论文篇数、被引频次、篇均被引
     dic6 = {}
     for i in data:
         strbak = i.PUBLICATION
@@ -1136,13 +1210,14 @@ def Page_lwfb(request):
     for i in data:
         strbak = i.PUBLICATION
         strbak = str(strbak)
-        dic6[strbak][0] = dic6[strbak][0] + 1               #论文篇数
-        dic6[strbak][1] = dic6[strbak][1] + i.TOTALREFCOUNT #被引频次
-        if dic6[strbak][0] != 0:                            #篇均被引
+        dic6[strbak][0] = dic6[strbak][0] + 1  # 论文篇数
+        dic6[strbak][1] = dic6[strbak][1] + i.TOTALREFCOUNT  # 被引频次
+        if dic6[strbak][0] != 0:  # 篇均被引
             dic6[strbak][2] = 1.0 * dic6[strbak][1] / dic6[strbak][0]
+            dic6[strbak][2] = Decimal(dic6[strbak][2]).quantize(Decimal('0.00'))
         else:
             dic6[strbak][2] = 0
-    #将字典dic6的key，value放入列表
+    # 将字典dic6的key，value放入列表
     a = []
     b = []
     c = []
@@ -1153,7 +1228,7 @@ def Page_lwfb(request):
         c.append(dic6[k][1])
         d.append(dic6[k][2])
     staffs = zip(lis, a, b, c, d)
-    staffs.sort(key=lambda x: x[4], reverse=True) #按篇均被引排序
+    staffs.sort(key=lambda x: x[4], reverse=True)  # 按篇均被引排序
 
     staffs11 = zip(a, b, c, d)
     staffs11.sort(key=lambda x: x[3], reverse=True)  # 按篇均被引排序
@@ -1171,21 +1246,21 @@ def Page_lwfb(request):
     return render(request, "Page_lwfb.html", {'staffs': staffs, 'units': units.keys(),
                                               'unit': searchUnit, 'esis': ESI22, 'esi': searchEsi})
 
-#合作机构分析
+# 合作机构分析
 def Page_lwhz(request):
-    #查询类型内容
-    type1 = ["AVERAGE", "NUMBER", "FREQUENCY"]
+    # 查询类型内容
+    type1 = [u"篇均被引", u"论文篇数", u"被引频次"]
     if request.method == "POST":
         type2 = request.POST.get('type2', None)
     else:
-        type2 = "AVERAGE"   #设置默认选项
+        type2 = u"篇均被引"  # 设置默认选项
     data = models.Dissertation.objects.filter()
     dic = {}
     for au in data:
         a = []
         b = []
         c = 1
-        for i in range(len(au.MECHANISM)):      #找出所需MECHANISM指定内容
+        for i in range(len(au.MECHANISM)):  # 找出所需MECHANISM指定内容
             if au.MECHANISM[i:i + 2] == "u'":
                 a.append(i)
                 c = 0
@@ -1193,7 +1268,7 @@ def Page_lwhz(request):
                 b.append(i)
                 c = 1
         lis2 = zip(a, b)
-        #初始化字典dic
+        # 初始化字典dic
         for i, j in lis2:
             strbak = au.MECHANISM[i + 2:j]
             if strbak.find("Wuhan Univ Sci") == (-1):
@@ -1203,13 +1278,11 @@ def Page_lwhz(request):
                 dic[strbak] = [0, 0, 0]
             else:
                 pass
-
-
     for au in data:
         a = []
         b = []
         c = 1
-        for i in range(len(au.MECHANISM)):        #找出所需MECHANISM指定内容
+        for i in range(len(au.MECHANISM)):  # 找出所需MECHANISM指定内容
             if au.MECHANISM[i:i + 2] == "u'":
                 a.append(i)
                 c = 0
@@ -1217,22 +1290,23 @@ def Page_lwhz(request):
                 b.append(i)
                 c = 1
         lis2 = zip(a, b)
-        #字典dic，key放合作单位，value放论文篇数、被引频次、篇均被引
+        # 字典dic，key放合作单位，value放论文篇数、被引频次、篇均被引
         for i, j in lis2:
             strbak = au.MECHANISM[i + 2:j]
             if strbak.find("Wuhan Univ Sci") == (-1):
                 if ']' in strbak:
                     strbak = strbak.split(']')[1]
                 strbak = str(strbak)
-                dic[strbak][0] = dic[strbak][0] + 1                    #论文篇数
-                dic[strbak][1] = dic[strbak][1] + au.TOTALREFCOUNT     #被引频次
-                if dic[strbak][0] != 0:                                #篇均被引
+                dic[strbak][0] = dic[strbak][0] + 1  # 论文篇数
+                dic[strbak][1] = dic[strbak][1] + au.TOTALREFCOUNT  # 被引频次
+                if dic[strbak][0] != 0:  # 篇均被引
                     dic[strbak][2] = 1.0 * dic[strbak][1] / dic[strbak][0]
+                    dic[strbak][2] = Decimal(dic[strbak][2]).quantize(Decimal('0.00'))
                 else:
                     dic[strbak][2] = 0
             else:
                 pass
-    #将字典dic6的key，value放入列表
+    # 将字典dic6的key，value放入列表
     a = []
     b = []
     c = []
@@ -1243,26 +1317,17 @@ def Page_lwhz(request):
         c.append(dic[k][1])
         d.append(dic[k][2])
     e = zip(a, b, c, d)
+    l = len(e)
 
-    #判断为那种查询类型
-    if type2 == "AVERAGE":                         #按篇均被引
+    # 判断为那种查询类型
+    if type2 == u"篇均被引":  # 按篇均被引
         e.sort(key=lambda x: x[3], reverse=True)
-    if type2 == "NUMBER":                          #按论文篇数
+    if type2 == u"论文篇数":  # 按论文篇数
         e.sort(key=lambda x: x[1], reverse=True)
-    if type2 == "FREQUENCY":                       #按被引频次
+    if type2 == u"被引频次":  # 按被引频次
         e.sort(key=lambda x: x[2], reverse=True)
 
-    # 将查询结果转化为csv文件形式，方便下载吧保存
-    csvFile2 = open('./static/download/csvFile2.csv', 'wb')  # 设置wb，否则两行之间会空一行
-    writer = csv.writer(csvFile2)
-    m = len(e)
-    writer.writerow(["合作单位".decode('utf-8').encode('GB18030'), "论文篇数".decode('utf-8').encode('GB18030'),
-                     "被引频次".decode('utf-8').encode('GB18030'), "	篇均被引".decode('utf-8').encode('GB18030')])
-
-    for i in range(m):
-        writer.writerow(e[i])
-    csvFile2.close()
-    return render(request, "Page_lwhz.html", {"lis": e, "type1": type1, "type2": type2})
+    return render(request, "Page_lwhz.html", {"lis": e, "type1": type1, "type2": type2, "l": l})
 
 # 二级单位论文贡献
 def Page_journalsContribution(request):
@@ -1324,7 +1389,7 @@ def Page_journalsContribution(request):
             institutionJournalDict[key] = len(esi_statistics[key])
 
         return render(request, "Page_journalsContribution.html", {
-            'instituteContributeDict':json.dumps(institutionJournalDict),
+            'instituteContributeDict': json.dumps(institutionJournalDict),
             # 'esiStatistics':json.dumps(esi_statistics),
         })
 
@@ -1333,7 +1398,6 @@ def Page_journalsContribution(request):
 
 # 上传期刊Excel文件并保存至static/journalsExcelFolder
 def Page_journalsImport(request):
-
     # if request.method == "POST":  # 请求方法为POST时，进行处理
     #     files = request.FILES.getlist("excels", None)
     #     if not files:
@@ -1348,11 +1412,10 @@ def Page_journalsImport(request):
     #     JournalsDBAppend()
     #     return HttpResponse("上传成功")
 
-    return render(request,"Page_journalsImport.html")
+    return render(request, "Page_journalsImport.html")
 
 # 上传职工Excel文件并保存到static/staffsExcelFolder
 def Page_staffsImport(request):
-
     if request.method == "POST":  # 请求方法为POST时，进行处理
         files = request.FILES.getlist("excels", None)
         if not files:
@@ -1367,11 +1430,10 @@ def Page_staffsImport(request):
         staffsDBAppend()
         return HttpResponse("上传成功")
 
-    return render(request,"Page_staffsImport.html")
+    return render(request, "Page_staffsImport.html")
 
 # 解析期刊Excel数据存入数据库
 def JournalsDBAppend():
-
     excelfolderpath = ".\static\journalsExcelFolder\\"
 
     conn = sqlite3.connect('.\db.sqlite3')
@@ -1384,7 +1446,7 @@ def JournalsDBAppend():
 
     for allDir in pathDir:
         child = os.path.join(allDir)
-        excelpath = excelfolderpath+child
+        excelpath = excelfolderpath + child
         workbook = xlrd.open_workbook(excelpath)
         booksheet = workbook.sheet_by_index(0)
 
@@ -1405,7 +1467,7 @@ def JournalsDBAppend():
                 title29 = row_data[1]
                 title20 = row_data[2]
                 cate = row_data[5]
-            c.execute("insert into Connor_journals (TITLE,TITLE29,TITLE20,CATE) values (?, ?, ?, ?)",
+            c.execute("INSERT INTO Connor_journals (TITLE,TITLE29,TITLE20,CATE) VALUES (?, ?, ?, ?)",
                       (title, title29, title20, cate))
             conn.commit()
 
@@ -1440,8 +1502,543 @@ def staffsDBAppend():
             staffname_cn = row_data[1]
             staffname_en = row_data[2]
 
-            c.execute("insert into Connor_staffs (INSTITUTION, STAFFNAME_CN, STAFFNAME_EN) values (?, ?, ?)",
+            c.execute("INSERT INTO Connor_staffs (INSTITUTION, STAFFNAME_CN, STAFFNAME_EN) VALUES (?, ?, ?)",
                       (institution, staffname_cn, staffname_en))
             conn.commit()
 
     conn.close()
+
+#二级单位贡献度
+def Page_unitsContribution(request):
+    if request.method == "POST":
+        selyear = request.POST.get('selyear', None)
+        selesi = request.POST.get('selesi', None)
+    else:
+        selyear = 2017
+        selesi = 'ALL'
+    thisyear = int(time.strftime('%Y', time.localtime(time.time())))
+    year = [x for x in range(thisyear - 10, thisyear + 1)]
+    year.append(u"所有年份")
+
+    units = {'材料与冶金学院': 'Coll Mat & Met|Sch Met & Mat', '理学院': 'Coll Sci',
+             '化学工程与技术学院': 'Sch Chem & Chem Engn|Sch Chem Engn & Technol|Coll Chem Engn & Techno',
+             '医学院': 'Coll Med|Sch Med',
+             '资源与环境工程学院': 'Coll Resource & Environm Engn|Sch Resource & Environm Engn',
+             '计算机科学与技术学院': 'Coll Comp Sci & Technol|Sch Comp Sci', '信息科学与工程学院': 'Sch Informat Sci & Engn',
+             '机械自动化学院': 'Sch Mech Engn|Coll Mech & Automat|Sch Machinery & Automat',
+             '附属天佑医院': 'Affiliated Tianyou Hosp|Tianyou Hosp', '国际钢铁研究院': 'Int Res Inst Steel Technol',
+             '管理学院': 'Sch Management',
+             '生物医学研究院': 'Inst Biol & Med', '附属普仁医院': 'Puren Hosp', '城市建设学院': 'Coll Urban Construct',
+             '武汉科技大学城市学院': 'City Coll', '文法与经济学院': 'Res Ctr SME', '汉阳医院': 'Hanyang Hosp',
+             '汽车与交通工程学院': 'Sch Automobile & Traff Engn'}
+
+    ESI22 = ['None', 'ALL', 'COMPUTER SCIENCE', 'ENGINEERING', 'MATERIALS SCIENCES', 'BIOLOGY & BIOCHEMISTRY',
+             'ENVIRONMENT & ECOLOGY', 'MICROBIOLOGY', 'MOLECULAR BIOLOGY & GENETICS',
+             'SOCIAL SCIENCES',
+             'ECONOMICS & BUSINESS', 'CHENISTRY', 'GEOSCIENCES', 'MATHEMATICS', 'PHYSICS',
+             'SPACE SCIENCE',
+             'AGRICULTURAL SCIENCES', 'PLANT & ANIMAL SCIENCE', 'CLINICAL MEDICINE', 'IMMUNOIOGY',
+             'NEUROSCIENCE & BEHAVIOR', 'PHARMACOLOGY & TOXICOLOGY', 'PSYCHOLOGR & PSYCHIATRY',
+             'MULTIDISCIPLINARY']
+
+    data = models.Dissertation.objects.filter()
+
+    if selyear != u"所有年份":
+        data = models.Dissertation.objects.filter(DATE__contains=selyear)
+
+    # 学科查询
+    data88 = models.Journals.objects.filter()
+    title88 = []
+    if selesi != "ALL":
+        for i in data88:
+            if selesi in i.CATE:
+                v = [i.TITLE, i.TITLE29, i.TITLE20]
+                title88.append(v)
+        for i in range(len(title88)):
+            title88[i][0] = str(title88[i][0]).upper()
+            title88[i][1] = str(title88[i][1]).upper()
+            title88[i][2] = str(title88[i][2]).upper()
+        data99 = []
+        for i in range(len(title88)):
+            for j in data:
+                j.PUBLICATION = str(j.PUBLICATION)
+                # 比较三种期刊类型
+                if title88[i][0] in j.PUBLICATION or title88[i][1] in j.PUBLICATION or title88[i][
+                    2] in j.PUBLICATION or j.PUBLICATION in title88[i][0] or j.PUBLICATION in title88[i][
+                    1] or j.PUBLICATION in title88[i][2]:
+                    data99.append(j)
+                    break
+        data = data99
+    num = len(data)
+
+    b = 0
+    for z in data:
+        b = b + z.REFERCOUNT
+    lis1 = range(1, 19)
+    lis2 = ['材料与冶金学院', '理学院', '化学工程与技术学院', '医学院', '资源与环境工程学院', '计算机科学与技术学院', '信息科学与工程学院',
+            '机械自动化学院', '附属天佑医院', '国际钢铁研究院', '管理学院', '生物医学研究院', '附属普仁医院', '城市建设学院',
+            '武汉科技大学城市学院', '文法与经济学院', '汉阳医院', '汽车与交通工程学院']
+
+    lis3 = []
+    lis4 = []
+    lis5 = []
+    lis6 = []
+
+    for i in lis2:
+        data33 = []
+        if '|' in units[i]:
+            u = units[i].split('|')
+            for d in data:
+                d3 = d.MECHANISM.split("u'")
+
+                for d1 in d3:
+                    if 'Wuhan Univ Sci' in d1:
+                        if len(u) == 3:
+                            if u[0] in d1 or u[1] in d1 or u[2] in d1:
+                                data33.append(d)
+                                break
+                        if len(u) == 2:
+                            if u[0] in d1 or u[1] in d1:
+                                data33.append(d)
+                                break
+
+        else:
+            u = units[i]
+            # print u
+            for d in data:
+                d3 = d.MECHANISM.split("u'")
+                # print d3
+                for d1 in d3:
+                    if 'Wuhan Univ Sci' in d1:
+                        if u in d1:
+                            data33.append(d)
+                            break
+
+                            # for i in lis2:
+                            #     data33 = []
+                            #     if '|' in units[i]:
+                            #         u = units[i].split('|')
+                            #         for d in data:
+                            #             d3 = d.MECHANISM.split("u'")
+                            #             for d1 in d3:
+                            #                 if 'Wuhan Univ Sci' in d1:
+                            #                     d2 = d1
+                            #                     break
+                            #             for e in u:
+                            #                 if e in d2:
+                            #                     data33.append(d)
+                            #                     break
+                            #     else:
+                            #         u = units[i]
+                            #         for d in data:
+                            #             d3 = d.MECHANISM.split("u'")
+                            #             for d1 in d3:
+                            #                 if 'Wuhan Univ Sci' in d1:
+                            #                     d2 = d1
+                            #                     break
+                            #             if u in d2:
+                            #                 data33.append(d)
+
+        lis3.append(len(data33))
+        c = 1.0 * len(data33) / num
+        e = Decimal(c).quantize(Decimal('0.0000'))
+        lis4.append(e)
+        a = 0
+        for z in data33:
+            a = a + z.REFERCOUNT
+        lis5.append(a)
+        f = 1.0 * a / b
+        g = Decimal(f).quantize(Decimal('0.0000'))
+        lis6.append(g)
+
+    z1 = zip(lis2, lis3, lis4, lis5, lis6)
+    z1.sort(key=lambda x: x[3], reverse=True)  # 按篇均被引排序
+
+    lis12 = []
+    lis13 = []
+    lis14 = []
+    lis15 = []
+    lis16 = []
+    for i in z1:
+        lis12.append(i[0])
+        lis13.append(i[1])
+        lis14.append(i[2])
+        lis15.append(i[3])
+        lis16.append(i[4])
+
+    # lis1212 = []
+    # for i in lis2:
+    #     j = i.decode('utf-8').encode('GB18030')
+    #     lis1212.append(j)
+
+    z = zip(lis1, lis12, lis13, lis14, lis15, lis16)
+
+    # 将查询结果转化为csv文件形式，方便下载保存
+    csvFile2 = open('./static/download/csvFile2.csv', 'wb')  # 设置wb，否则两行之间会空一行
+    writer = csv.writer(csvFile2)
+    m = len(z)
+    writer.writerow(["贡献度排名".decode('utf-8').encode('GB18030'), "院系名称".decode('utf-8').encode('GB18030'),
+                     "论文篇数".decode('utf-8').encode('GB18030'), "论文数量占比".decode('utf-8').encode('GB18030'),
+                     "被引频次".decode('utf-8').encode('GB18030'), "被引频次占比".decode('utf-8').encode('GB18030')])
+    for i in range(m):
+        writer.writerow(z[i])
+    csvFile2.close()
+
+    return render(request, "Page_unitsContribution.html",
+                  {"year": year, "ESI22": ESI22, "z": z, "selyear": selyear, "selesi": selesi})
+
+#职工贡献度
+def Page_staffsContribution(request):
+    if request.method == "POST":
+        selyear = request.POST.get('selyear', None)
+        selesi = request.POST.get('selesi', None)
+    else:
+        selyear = 2017
+        selesi = 'ALL'
+    thisyear = int(time.strftime('%Y', time.localtime(time.time())))
+    year = [x for x in range(thisyear - 10, thisyear + 1)]
+    year.append(u"所有年份")
+
+    units = {'材料与冶金学院': 'Coll Mat & Met|Sch Met & Mat', '理学院': 'Coll Sci',
+             '化学工程与技术学院': 'Sch Chem & Chem Engn|Sch Chem Engn & Technol|Coll Chem Engn & Techno',
+             '医学院': 'Coll Med|Sch Med',
+             '资源与环境工程学院': 'Coll Resource & Environm Engn|Sch Resource & Environm Engn',
+             '计算机科学与技术学院': 'Coll Comp Sci & Technol|Sch Comp Sci', '信息科学与工程学院': 'Sch Informat Sci & Engn',
+             '机械自动化学院': 'Sch Mech Engn|Coll Mech & Automat|Sch Machinery & Automat',
+             '附属天佑医院': 'Affiliated Tianyou Hosp|Tianyou Hosp', '国际钢铁研究院': 'Int Res Inst Steel Technol',
+             '管理学院': 'Sch Management',
+             '生物医学研究院': 'Inst Biol & Med', '附属普仁医院': 'Puren Hosp', '城市建设学院': 'Coll Urban Construct',
+             '武汉科技大学城市学院': 'City Coll', '文法与经济学院': 'Res Ctr SME', '汉阳医院': 'Hanyang Hosp',
+             '汽车与交通工程学院': 'Sch Automobile & Traff Engn'}
+
+    ESI22 = ['None', 'ALL', 'COMPUTER SCIENCE', 'ENGINEERING', 'MATERIALS SCIENCES', 'BIOLOGY & BIOCHEMISTRY',
+             'ENVIRONMENT & ECOLOGY', 'MICROBIOLOGY', 'MOLECULAR BIOLOGY & GENETICS',
+             'SOCIAL SCIENCES',
+             'ECONOMICS & BUSINESS', 'CHENISTRY', 'GEOSCIENCES', 'MATHEMATICS', 'PHYSICS',
+             'SPACE SCIENCE',
+             'AGRICULTURAL SCIENCES', 'PLANT & ANIMAL SCIENCE', 'CLINICAL MEDICINE', 'IMMUNOIOGY',
+             'NEUROSCIENCE & BEHAVIOR', 'PHARMACOLOGY & TOXICOLOGY', 'PSYCHOLOGR & PSYCHIATRY',
+             'MULTIDISCIPLINARY']
+
+    data = models.Dissertation.objects.filter()
+
+    if selyear != u"所有年份":
+        data = models.Dissertation.objects.filter(DATE__contains=selyear)
+
+    # 学科查询
+    data88 = models.Journals.objects.filter()
+    title88 = []
+    if selesi != "ALL":
+        for i in data88:
+            if selesi in i.CATE:
+                v = [i.TITLE, i.TITLE29, i.TITLE20]
+                title88.append(v)
+        for i in range(len(title88)):
+            title88[i][0] = str(title88[i][0]).upper()
+            title88[i][1] = str(title88[i][1]).upper()
+            title88[i][2] = str(title88[i][2]).upper()
+        data99 = []
+        for i in range(len(title88)):
+            for j in data:
+                j.PUBLICATION = str(j.PUBLICATION)
+                # 比较三种期刊类型
+                if title88[i][0] in j.PUBLICATION or title88[i][1] in j.PUBLICATION or title88[i][
+                    2] in j.PUBLICATION or j.PUBLICATION in title88[i][0] or j.PUBLICATION in title88[i][
+                    1] or j.PUBLICATION in title88[i][2]:
+                    data99.append(j)
+                    break
+        data = data99
+    rec_num = 0
+    for i in data:
+        rec_num += i.REFERCOUNT
+
+    # 把所有的作者全称存入一个列表aulist
+    aulist = []
+    for au in data:
+        a = []
+        b = []
+        author1 = []
+        for i in range(len(au.AULIST)):
+            if au.AULIST[i] == '(':
+                a.append(i)
+            if au.AULIST[i] == ')':
+                b.append(i)
+        lis1 = zip(a, b)
+        for i, j in lis1:
+            author1.append(au.AULIST[i + 1:j])
+        aulist.append(author1)
+
+    b = []
+    for i in aulist:
+        a = []
+        for j in i:
+            j = str(j)
+            j = j.replace(',', '')
+            j = j.replace('-', '')  # 去掉作者写法中的 ',' 和 '-' ,然后全部转化成小写
+            j = j.lower()
+            a.append(j)
+        b.append(a)
+    aulist = b
+
+    # 将Staffs表中的三个字段分别存进三个列表
+    unit1 = []
+    cn = []
+    en = []
+    staffs_unit = models.Staffs.objects.values('INSTITUTION').all()
+    staffs_cn = models.Staffs.objects.values('STAFFNAME_CN').all()
+    staffs_en = models.Staffs.objects.values('STAFFNAME_EN').all()
+    for i in staffs_unit:
+        unit1.append(i['INSTITUTION'])
+    for j in staffs_cn:
+        cn.append(j['STAFFNAME_CN'])
+    for k in staffs_en:
+        en.append(k['STAFFNAME_EN'])
+
+    a = []
+    for i in en:
+        # i=str(i)
+        i = i.lower()
+        a.append(i)
+    en = a
+
+    lis3 = []
+    lis5 = []
+    lis4 = []
+    lis6 = []
+    for e in en:
+        num = 0
+        av = 0
+        for i in range(len(aulist)):
+            for j in aulist[i]:
+                if j == e:
+                    num = num + 1
+                    av = av + data[i].REFERCOUNT
+                    break
+        lis3.append(num)
+        lis5.append(av)
+        lis4.append(1.0 * num / len(data))
+        lis6.append(1.0 * av / rec_num)
+
+    lis1 = range(1, 31)
+
+    z1 = zip(cn, lis3, lis4, lis5, lis6)
+    z1.sort(key=lambda x: x[3], reverse=True)  # 按篇均被引排序
+
+    lis12 = []
+    lis13 = []
+    lis14 = []
+    lis15 = []
+    lis16 = []
+    for i in z1:
+        lis12.append(i[0])
+        lis13.append(i[1])
+        lis14.append(i[2])
+        lis15.append(i[3])
+        lis16.append(i[4])
+    # lis1212 = []
+    # for i in lis12:
+    #     j = i.decode('utf-8').encode('GB18030')
+    #     lis1212.append(j)
+    z = zip(lis1, lis12, lis13, lis14, lis15, lis16)
+
+    # # 将查询结果转化为csv文件形式，方便下载保存
+    # csvFile2 = open('./static/download/csvFile2.csv', 'wb')  # 设置wb，否则两行之间会空一行
+    # writer = csv.writer(csvFile2)
+    # m = len(z)
+    # writer.writerow(["贡献度排名".decode('utf-8').encode('GB18030'), "作者".decode('utf-8').encode('GB18030'),
+    #                  "论文篇数".decode('utf-8').encode('GB18030'), "论文数量占比".decode('utf-8').encode('GB18030'),
+    #                  "被引频次".decode('utf-8').encode('GB18030'), "被引频次占比".decode('utf-8').encode('GB18030')])
+    # for i in range(m):
+    #     writer.writerow(z[i])
+    # csvFile2.close()
+
+    return render(request, "Page_staffsContribution.html",
+                  {"year": year, "ESI22": ESI22, "z": z, "selyear": selyear, "selesi": selesi})
+
+#我校引用我校论文分析
+def Page_referToOurSchool(request):
+    thisyear = int(time.strftime('%Y', time.localtime(time.time())))
+    year = [x for x in range(thisyear - 10, thisyear + 1)]
+    paper_pair = []
+    month = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC', 'ALL', 'none']
+    month11 = ['FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC', 'JAN']
+
+    ESI22 = ['COMPUTER SCIENCE', 'ENGINEERING', 'MATERIALS SCIENCES', 'BIOLOGY & BIOCHEMISTRY',
+             'ENVIRONMENT & ECOLOGY', 'MICROBIOLOGY', 'MOLECULAR BIOLOGY & GENETICS',
+             'SOCIAL SCIENCES',
+             'ECONOMICS & BUSINESS', 'CHENISTRY', 'GEOSCIENCES', 'MATHEMATICS', 'PHYSICS',
+             'SPACE SCIENCE',
+             'AGRICULTURAL SCIENCES', 'PLANT & ANIMAL SCIENCE', 'CLINICAL MEDICINE', 'IMMUNOIOGY',
+             'NEUROSCIENCE & BEHAVIOR', 'PHARMACOLOGY & TOXICOLOGY', 'PSYCHOLOGR & PSYCHIATRY',
+             'MULTIDISCIPLINARY','ALL']
+
+
+    if request.method == "POST":
+        searchYear = request.POST.get('selyear', None)
+        month1 = request.POST.get('month1', None)
+        month2 = request.POST.get('month2', None)
+        selesi = request.POST.get('esi', None)
+    else:
+        searchYear = thisyear - 10
+        month1 = request.POST.get('month1', None)
+        month2 = request.POST.get('month2', None)
+        selesi = request.POST.get('esi', None)
+    paper_list = models.Dissertation.objects.filter(DATE__contains=searchYear)
+    data33 = []
+    month1 = str(month1)
+    month2 = str(month2)
+    # 查询两个月份之间的文章
+    if month2 != 'ALL':
+        for d in paper_list:
+            abc = 1
+            for m in month:
+                if month1 == m:
+                    abc = 0
+                if month2 == m:
+                    abc = 1
+                if abc == 0:
+                    if m in d.DATE:
+                        data33.append(d)
+            if month2 in d.DATE:
+                data33.append(d)
+        paper_list = data33  # 筛选月份后的文章对象列表
+    data44 = []
+    # 按该论文发表月份从小到大排序
+    for i in month:
+        for d in paper_list:
+            if i in d.DATE:
+                data44.append(d)
+    paper_list = data44  # 按月份排序后的文章对象列表
+
+    selesi= str(selesi)
+    # 学科查询
+    data88 = models.Journals.objects.filter()
+    title88 = []
+    if selesi != "ALL":
+        for i in data88:
+            if selesi in i.CATE:
+                v = [i.TITLE, i.TITLE29, i.TITLE20]
+                title88.append(v)
+        for i in range(len(title88)):
+            title88[i][0] = str(title88[i][0]).upper()
+            title88[i][1] = str(title88[i][1]).upper()
+            title88[i][2] = str(title88[i][2]).upper()
+        data99 = []
+        for i in range(len(title88)):
+            for j in paper_list:
+                j.PUBLICATION = str(j.PUBLICATION)
+                # 比较三种期刊类型
+                if title88[i][0] in j.PUBLICATION or title88[i][1] in j.PUBLICATION or title88[i][
+                    2] in j.PUBLICATION or j.PUBLICATION in title88[i][0] or j.PUBLICATION in title88[i][
+                    1] or j.PUBLICATION in title88[i][2]:
+                    data99.append(j)
+                    break
+        paper_list = data99
+
+    paper_pair = []
+    for paper in paper_list:
+        refer = models.refer.objects.filter(TITLE__contains=paper.TITLE)
+        paper_pair.append(refer)  # 刷选后的 refer表中的对象
+
+
+    a = len(paper_list)
+    b = 0
+    for i in paper_pair:
+        b += len(i)
+
+    return render(request, "Page_referToOurSchool.html",
+                  {"year": year, "paper_pair": paper_pair, "month": month, "a": a, "b": b,
+                   "searchYear": searchYear, "month1": month1, "month2": month2,
+                   "month11": month11,"ESI22":ESI22})
+
+#新增论文分析
+def Page_newIncrease(request):
+    if request.method == "POST":
+        selyear = request.POST.get('selyear', None)
+        selesi = request.POST.get('selesi', None)
+    else:
+        selyear = 2017
+        selesi = 'ALL'
+    thisyear = int(time.strftime('%Y', time.localtime(time.time())))
+    year = [x for x in range(thisyear - 10, thisyear + 1)]
+
+    units = {'材料与冶金学院': 'Coll Mat & Met|Sch Met & Mat', '理学院': 'Coll Sci',
+             '化学工程与技术学院': 'Sch Chem & Chem Engn|Sch Chem Engn & Technol|Coll Chem Engn & Techno',
+             '医学院': 'Coll Med|Sch Med',
+             '资源与环境工程学院': 'Coll Resource & Environm Engn|Sch Resource & Environm Engn',
+             '计算机科学与技术学院': 'Coll Comp Sci & Technol|Sch Comp Sci', '信息科学与工程学院': 'Sch Informat Sci & Engn',
+             '机械自动化学院': 'Sch Mech Engn|Coll Mech & Automat|Sch Machinery & Automat',
+             '附属天佑医院': 'Affiliated Tianyou Hosp|Tianyou Hosp', '国际钢铁研究院': 'Int Res Inst Steel Technol',
+             '管理学院': 'Sch Management',
+             '生物医学研究院': 'Inst Biol & Med', '附属普仁医院': 'Puren Hosp', '城市建设学院': 'Coll Urban Construct',
+             '武汉科技大学城市学院': 'City Coll', '文法与经济学院': 'Res Ctr SME', '汉阳医院': 'Hanyang Hosp',
+             '汽车与交通工程学院': 'Sch Automobile & Traff Engn'}
+
+    ESI22 = ['None', 'ALL', 'COMPUTER SCIENCE', 'ENGINEERING', 'MATERIALS SCIENCES', 'BIOLOGY & BIOCHEMISTRY',
+             'ENVIRONMENT & ECOLOGY', 'MICROBIOLOGY', 'MOLECULAR BIOLOGY & GENETICS',
+             'SOCIAL SCIENCES',
+             'ECONOMICS & BUSINESS', 'CHENISTRY', 'GEOSCIENCES', 'MATHEMATICS', 'PHYSICS',
+             'SPACE SCIENCE',
+             'AGRICULTURAL SCIENCES', 'PLANT & ANIMAL SCIENCE', 'CLINICAL MEDICINE', 'IMMUNOIOGY',
+             'NEUROSCIENCE & BEHAVIOR', 'PHARMACOLOGY & TOXICOLOGY', 'PSYCHOLOGR & PSYCHIATRY',
+             'MULTIDISCIPLINARY']
+
+    lis1 = ['材料与冶金学院', '理学院', '化学工程与技术学院', '医学院', '资源与环境工程学院', '计算机科学与技术学院', '信息科学与工程学院',
+            '机械自动化学院', '附属天佑医院', '国际钢铁研究院', '管理学院', '生物医学研究院', '附属普仁医院', '城市建设学院',
+            '武汉科技大学城市学院', '文法与经济学院', '汉阳医院', '汽车与交通工程学院']
+
+    data = models.Dissertation.objects.filter(DATE__contains=selyear)
+
+    # 学科查询
+    data88 = models.Journals.objects.filter()
+    title88 = []
+    if selesi != "ALL":
+        for i in data88:
+            if selesi in i.CATE:
+                v = [i.TITLE, i.TITLE29, i.TITLE20]
+                title88.append(v)
+        for i in range(len(title88)):
+            title88[i][0] = str(title88[i][0]).upper()
+            title88[i][1] = str(title88[i][1]).upper()
+            title88[i][2] = str(title88[i][2]).upper()
+        data99 = []
+        for i in range(len(title88)):
+            for j in data:
+                j.PUBLICATION = str(j.PUBLICATION)
+                # 比较三种期刊类型
+                if title88[i][0] in j.PUBLICATION or title88[i][1] in j.PUBLICATION or title88[i][
+                    2] in j.PUBLICATION or j.PUBLICATION in title88[i][0] or j.PUBLICATION in title88[i][
+                    1] or j.PUBLICATION in title88[i][2]:
+                    data99.append(j)
+                    break
+        data = data99
+
+    lis2 = []
+    lis3 = []
+    for i in lis1:
+        data33 = []
+        if '|' in units[i]:
+            u = units[i].split('|')
+            for d in data:
+                if len(u) == 3:
+                    if u[0] in d.MECHANISM or u[1] in d.MECHANISM or u[2] in d.MECHANISM:
+                        data33.append(d)
+                if len(u) == 2:
+                    if u[0] in d.MECHANISM or u[1] in d.MECHANISM:
+                        data33.append(d)
+        else:
+            u = units[i]
+            for d in data:
+                if u in d.MECHANISM:
+                    data33.append(d)
+
+        lis2.append(len(data33))
+
+        b = 0
+        for k in data33:
+            b += k.REFERCOUNT
+        lis3.append(b)
+
+    z = zip(lis1, lis2, lis3)
+
+    return render(request, "Page_newIncrease.html", {"year": year,"selyear": selyear,"selesi":selesi, "ESI22":ESI22, "z": z})

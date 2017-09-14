@@ -36,43 +36,43 @@
         }
         #dd .d1{
             position: absolute;
-            left: 820px;
+            left: 960px;
             top: 60px;
             color: black;
         }
         #dd .d2{
             position: absolute;
-            left: 820px;
+            left: 960px;
             top: 80px;
             color: black;
         }
         #dd .d7{
             position: absolute;
-            left: 837px;
+            left: 977px;
             top: 100px;
             color: black;
         }
         #dd .d3{
             position: absolute;
-            left: 960px;
+            left: 1100px;
             top: 60px;
             color: black;
         }
         #dd .d4{
             position: absolute;
-            left: 960px;
+            left: 1100px;
             top: 80px;
             color: black;
         }
         #dd .d6{
             position: absolute;
-            left: 977px;
+            left: 1117px;
             top: 100px;
             color: black;
         }
         #dd .d5{
             position: absolute;
-            left: 1100px;
+            left: 1270px;
             top: 63px;
             color: black;
         }
@@ -81,7 +81,7 @@
         }
         #cc{
             position: absolute;
-            left: 1100px;
+            left: 1270px;
             top: 10px;
         }
     </style>
@@ -102,7 +102,19 @@
 
         作者：<input type="text" name="author" value="" onclick="this.value = ''"/>
 
-        日期：<input type="text" name="date" value="" onclick="this.value = ''"/>
+        年份：<input type="text" name="date" value="" onclick="this.value = ''"/>
+
+
+        月份：<select name="month1" onchange="postunit()" type="select" data-inline="true">
+            {% for u in month %}
+                <option selected="selected" value={{ u }}>{{ u }}</option>
+            {% endfor %}
+        </select>
+        ~<select name="month2" onchange="postunit()" type="select" data-inline="true">
+            {% for u in month %}
+                <option selected="selected" value={{ u }}>{{ u }}</option>
+            {% endfor %}
+        </select>
 
 
         <p class="d1">高热点：<input type="radio" checked="true" name="hot"  value="1" ></p>

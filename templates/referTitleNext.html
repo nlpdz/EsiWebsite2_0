@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link type="text/css" href="/static/css/tabel.css" rel="stylesheet">
+
+</head>
+<body>
+    <h1 class="h1">引用论文</h1>
+{#    <h2 align="center">{{  }}</h2>#}
+    <hr/>
+    <table class="GridBackColor">
+        <tbody>
+            <tr class="GridHeadBackColor">
+                <td>
+                    <h1 style="text-align: center">被引标题</h1>
+                </td>
+            </tr>
+
+            {% for paper in paper_pair %}
+
+                    <tr onmousemove="javascript:this.bgColor='#C7F8AE';" onmouseout="javascript:this.bgColor='#ffffff';" bgcolor="#ffffff">
+                        <td>
+                           {{ paper }}
+                        </td>
+                    </tr>
+
+            {% endfor %}
+
+        </tbody>
+    </table>
+</body>
+</html>

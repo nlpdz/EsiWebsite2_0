@@ -31,12 +31,12 @@
                 <option value={{ u }}>{{ u }}</option>
             {% endfor %}
         </select>
-{#    <span  id="cc" style="width:100px ">#}
-{##}
-{#        <a href="./static/download/csvFile2.csv" target="_self">#}
-{#            <img src="static/imgs/save.png" width="20px" height="20px"  />#}
-{#        </a>#}
-{#    </span>#}
+        <span  id="cc" style="width:100px ">
+
+        <a href="./static/download/csvFile2.csv" target="_self">
+            <img src="static/imgs/save.png" width="20px" height="20px"  />
+        </a>
+        </span>
     </form>
     <hr/>
     <table class="GridBackColor">
@@ -61,7 +61,7 @@
                     <a>被引频次占比</a>
                 </td>
             </tr>
-            {% for i,j,k,l,m,n in z %}
+            {% for i,j,k,l,m,n in z1 %}
             <tr onmouseover="javascript:this.bgColor='#C7F8AE';" onmouseout="javascript:this.bgColor='#ffffff';" bgcolor="#ffffff">
                 <td style="width:100px;">
                     {{ i }}

@@ -9,6 +9,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import collections
 import xlsxwriter
 import csv
+import codecs
 from django.db.models import Sum
 import numpy as np
 import os
@@ -373,7 +374,6 @@ esi22 = []
 # 论文查询
 def Page_lwzl(request):
     if request.method == "GET":
-
         if request.GET.get('tf'):
 
             title = request.GET.get('title')
@@ -629,7 +629,6 @@ def Page_yygx(request):
         searchYear = request.POST.get('selyear', None)
         month1 = request.POST.get('month1', None)
         month2 = request.POST.get('month2', None)
-
     else:
         searchYear = thisyear - 10
         month1 = request.POST.get('month1', None)
@@ -667,6 +666,33 @@ def Page_yygx(request):
     b = 0
     for i in paper_pair:
         b += len(i)
+
+    lis_1 = []
+    lis_2 = []
+    for paper in paper_pair:
+        for line in paper:
+            lis_1.append(line.REFERENCE_TITLE)
+            lis_2.append(line.TITLE)
+    lis_11 = []
+    lis_22 = []
+    for i in lis_1:
+        j = i.encode('GB18030')
+        lis_11.append(j)
+    for i in lis_2:
+        j = i.encode('GB18030')
+        lis_22.append(j)
+    z = zip(lis_11, lis_22)
+    # 将查询结果转化为csv文件形式，方便下载吧保存
+    csvFile2 = open('./static/download/csvFile2.csv', 'wb')  # 设置wb，否则两行之间会空一行
+    writer = csv.writer(csvFile2)
+    m = len(z)
+
+    writer.writerow(["标题".decode('utf-8').encode('GB18030'), "被引标题".decode('utf-8').encode('GB18030')])
+
+    for i in range(m):
+        writer.writerow(z[i])
+    csvFile2.close()
+
 
     return render(request, "Page_yygx.html", {"year": year, "paper_pair": paper_pair, "month": month, "a": a, "b": b,
                                               "searchYear": searchYear, "month1": month1, "month2": month2,
@@ -1614,31 +1640,6 @@ def Page_unitsContribution(request):
                             data33.append(d)
                             break
 
-                            # for i in lis2:
-                            #     data33 = []
-                            #     if '|' in units[i]:
-                            #         u = units[i].split('|')
-                            #         for d in data:
-                            #             d3 = d.MECHANISM.split("u'")
-                            #             for d1 in d3:
-                            #                 if 'Wuhan Univ Sci' in d1:
-                            #                     d2 = d1
-                            #                     break
-                            #             for e in u:
-                            #                 if e in d2:
-                            #                     data33.append(d)
-                            #                     break
-                            #     else:
-                            #         u = units[i]
-                            #         for d in data:
-                            #             d3 = d.MECHANISM.split("u'")
-                            #             for d1 in d3:
-                            #                 if 'Wuhan Univ Sci' in d1:
-                            #                     d2 = d1
-                            #                     break
-                            #             if u in d2:
-                            #                 data33.append(d)
-
         lis3.append(len(data33))
         c = 1.0 * len(data33) / num
         e = Decimal(c).quantize(Decimal('0.0000'))
@@ -1665,13 +1666,12 @@ def Page_unitsContribution(request):
         lis14.append(i[2])
         lis15.append(i[3])
         lis16.append(i[4])
-
-    # lis1212 = []
-    # for i in lis2:
-    #     j = i.decode('utf-8').encode('GB18030')
-    #     lis1212.append(j)
-
-    z = zip(lis1, lis12, lis13, lis14, lis15, lis16)
+    lis1212 = []
+    for i in lis2:
+        j = i.decode('utf-8').encode('GB18030')
+        lis1212.append(j)
+    z = zip(lis1, lis1212, lis13, lis14, lis15, lis16)
+    z1 = zip(lis1, lis2, lis13, lis14, lis15, lis16)
 
     # 将查询结果转化为csv文件形式，方便下载保存
     csvFile2 = open('./static/download/csvFile2.csv', 'wb')  # 设置wb，否则两行之间会空一行
@@ -1683,9 +1683,8 @@ def Page_unitsContribution(request):
     for i in range(m):
         writer.writerow(z[i])
     csvFile2.close()
-
     return render(request, "Page_unitsContribution.html",
-                  {"year": year, "ESI22": ESI22, "z": z, "selyear": selyear, "selesi": selesi})
+                  {"year": year, "ESI22": ESI22, "z1": z1, "selyear": selyear, "selesi": selesi})
 
 #职工贡献度
 def Page_staffsContribution(request):
@@ -1796,7 +1795,6 @@ def Page_staffsContribution(request):
 
     a = []
     for i in en:
-        # i=str(i)
         i = i.lower()
         a.append(i)
     en = a
@@ -1839,25 +1837,26 @@ def Page_staffsContribution(request):
         lis14.append(i[2])
         lis15.append(i[3])
         lis16.append(i[4])
-    # lis1212 = []
-    # for i in lis12:
-    #     j = i.decode('utf-8').encode('GB18030')
-    #     lis1212.append(j)
-    z = zip(lis1, lis12, lis13, lis14, lis15, lis16)
+    lis1212 = []
+    for i in lis12:
+        j = i.encode('GB18030')
+        lis1212.append(j)
+    z = zip(lis1, lis1212, lis13, lis14, lis15, lis16)
+    z1 = zip(lis1, cn, lis13, lis14, lis15, lis16)
 
-    # # 将查询结果转化为csv文件形式，方便下载保存
-    # csvFile2 = open('./static/download/csvFile2.csv', 'wb')  # 设置wb，否则两行之间会空一行
-    # writer = csv.writer(csvFile2)
-    # m = len(z)
-    # writer.writerow(["贡献度排名".decode('utf-8').encode('GB18030'), "作者".decode('utf-8').encode('GB18030'),
-    #                  "论文篇数".decode('utf-8').encode('GB18030'), "论文数量占比".decode('utf-8').encode('GB18030'),
-    #                  "被引频次".decode('utf-8').encode('GB18030'), "被引频次占比".decode('utf-8').encode('GB18030')])
-    # for i in range(m):
-    #     writer.writerow(z[i])
-    # csvFile2.close()
+    # 将查询结果转化为csv文件形式，方便下载保存
+    csvFile2 = open('./static/download/csvFile2.csv', 'wb')  # 设置wb，否则两行之间会空一行
+    writer = csv.writer(csvFile2)
+    m = len(z)
+    writer.writerow(["贡献度排名".decode('utf-8').encode('GB18030'), "作者".decode('utf-8').encode('GB18030'),
+                     "论文篇数".decode('utf-8').encode('GB18030'), "论文数量占比".decode('utf-8').encode('GB18030'),
+                     "被引频次".decode('utf-8').encode('GB18030'), "被引频次占比".decode('utf-8').encode('GB18030')])
+    for i in range(m):
+        writer.writerow(z[i])
+    csvFile2.close()
 
     return render(request, "Page_staffsContribution.html",
-                  {"year": year, "ESI22": ESI22, "z": z, "selyear": selyear, "selesi": selesi})
+                  {"year": year, "ESI22": ESI22, "z1": z1, "selyear": selyear, "selesi": selesi})
 
 #我校引用我校论文分析
 def Page_referToOurSchool(request):
@@ -1949,6 +1948,32 @@ def Page_referToOurSchool(request):
     b = 0
     for i in paper_pair:
         b += len(i)
+
+    lis_1 = []
+    lis_2 = []
+    for paper in paper_pair:
+        for line in paper:
+            lis_1.append(line.TITLE)
+            lis_2.append(line.REFERENCE_TITLE)
+    lis_11 = []
+    lis_22 = []
+    for i in lis_1:
+        j = i.encode('GB18030')
+        lis_11.append(j)
+    for i in lis_2:
+        j = i.encode('GB18030')
+        lis_22.append(j)
+    z = zip(lis_11,lis_22)
+    # 将查询结果转化为csv文件形式，方便下载吧保存
+    csvFile2 = open('./static/download/csvFile2.csv', 'wb')  # 设置wb，否则两行之间会空一行
+    writer = csv.writer(csvFile2)
+    m = len(z)
+
+    writer.writerow(["标题".decode('utf-8').encode('GB18030'), "被引用文章标题".decode('utf-8').encode('GB18030')])
+
+    for i in range(m):
+        writer.writerow(z[i])
+    csvFile2.close()
 
     return render(request, "Page_referToOurSchool.html",
                   {"year": year, "paper_pair": paper_pair, "month": month, "a": a, "b": b,

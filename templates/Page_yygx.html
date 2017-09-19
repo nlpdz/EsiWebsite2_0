@@ -9,6 +9,13 @@
             document.getElementById("year").submit()
         }
     </script>
+    <style type="text/css">
+        #cc{
+            position: absolute;
+            left: 1100px;
+            top: 10px;
+        }
+    </style>
 </head>
 <body>
     <h1>引用关系</h1>
@@ -29,6 +36,12 @@
                 <option selected="selected" value={{ u }}>{{ u }}</option>
             {% endfor %}
         </select>
+        <span  id="cc" style="width:100px ">
+
+        <a href="./static/download/csvFile2.csv" target="_self">
+            <img src="static/imgs/save.png" width="20px" height="20px"  />
+        </a>
+        </span>
     &nbsp;&nbsp;&nbsp;
         标题总数：{{ b }}&nbsp;&nbsp;&nbsp;
         被引标题总数：{{ a }}
